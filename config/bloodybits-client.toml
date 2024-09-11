@@ -1,0 +1,8 @@
+
+["blood spray settings"]
+	#Whether or not an entity should show textured damage when hit.
+	show_mob_damage = true
+	#What percentage of an entity should be covered in blood based on its current damage.
+	#Range: 0 ~ 100
+	entity_damage_percent = 75
+

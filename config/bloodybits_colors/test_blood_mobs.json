@@ -1,0 +1,33 @@
+{
+  "#c832ff": [
+    "minecraft:enderman",
+    "minecraft:shulker",
+    "minecraft:ender_dragon",
+    "minecraft:endermite"
+  ],
+  "#2acbf7": [
+    "minecraft:allay",
+    "minecraft:warden"
+  ],
+  "#323232": [
+    "minecraft:wither_skeleton",
+    "minecraft:wither"
+  ],
+  "#01c801": [
+    "minecraft:spider",
+    "minecraft:cave_spider",
+    "minecraft:creeper",
+    "minecraft:bee",
+    "minecraft:slime"
+  ],
+  "#c8c8c8": [
+    "minecraft:skeleton",
+    "minecraft:skeleton_horse",
+    "minecraft:snow_golem",
+    "minecraft:shulker"
+  ],
+  "#fac832": [
+    "minecraft:magma_cube",
+    "minecraft:blaze"
+  ]
+}
