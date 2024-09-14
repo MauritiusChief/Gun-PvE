@@ -5,10 +5,10 @@ const MAP_POS = {
         // 黄方代码均为 1XX
         base: [11, -58, 0], // code: 150
 
-        north_start: [14, -58, -11],
-        mid_start1: [10, -58, -7],
-        mid_start2: [10, -58, 7],
-        south_start: [14, -58, 11],
+        north_start: [14.0, -58.0, -10.5],
+        mid_start1: [10.0, -58.0, -6.0],
+        mid_start2: [10.0, -58.0, 7.0],
+        south_start: [14.0, -58.0, 11.5],
         
         // 上路 10X
         north_lane_5: [19, -58, -11], // code: 105
@@ -34,10 +34,10 @@ const MAP_POS = {
         // 白方代码均为 2XX
         base: [168, -58, 0], // code: 250
 
-        north_start: [165, -58, -11],
-        mid_start1: [169, -58, -7],
-        mid_start2: [169, -58, 7],
-        south_start: [165, -58, 11],
+        north_start: [166.0, -58.0, -10.5],
+        mid_start1: [170.0, -58.0, -6.0],
+        mid_start2: [170.0, -58.0, 7.0],
+        south_start: [166.0, -58.0, 11.5],
         
         // 上路 20X
         north_lane_5: [160, -58, -11], // code: 205
@@ -63,23 +63,55 @@ const MAP_POS = {
 
 const ENEMY_PRESET = {
     norm: {
-        id: "zombie",
+        id: "minecraft:zombie",
         HandItems: [{},{}],
         ArmorItems: [{},{},{},{}],
     },
     shovel: {
-        id: "zombie",
+        id: "minecraft:zombie",
         HandItems: [{id:"minecraft:iron_shovel",Count:1},{}],
         ArmorItems: [{},{},{},{id:"minecraft:iron_helmet",Count:1}],
     }
 }
 
-const WAVE_DATA = {
+const ALLY_PRESET = {
+    cobble: {
+        id: "minecraft:wolf",
+        HandItems: [{},{}],
+        ArmorItems: [{},{},{},{}],
+    },
+    plank: {
+        id: "gaggle_of_golems:plank_golem",
+        HandItems: [{},{}],
+        ArmorItems: [{},{},{},{}],
+    },
+    iron: {
+        id: "minecraft:iron_golem",
+        HandItems: [{},{}],
+        ArmorItems: [{},{},{},{}],
+    },
+    furnace: {
+        id: "gaggle_of_golems:furnace_golem",
+        HandItems: [{},{}],
+        ArmorItems: [{},{},{},{}],
+    }
+}
+
+const ENEMY_WAVE_DATA = {
     1: {
-        norm: {amount: 1, start: [0, 1, 2, 3, 4, 5]},
+        norm: {amount: 10, start: [0, 1, 2, 3, 4, 5]},
     },
     2: {
         norm: {amount: 1, start: [0, 1, 2, 3, 4, 5]},
         shovel: {amount: 1, start: [0, 1, 2, 3, 4, 5]},
+    }
+}
+
+const ALLY_WAVE_DATA = {
+    1: {
+        cobble: {amount: 10, start: [0, 1, 2, 3, 4, 5]},
+    },
+    2: {
+        cobble: {amount: 2, start: [0, 1, 2, 3, 4, 5]}
     }
 }

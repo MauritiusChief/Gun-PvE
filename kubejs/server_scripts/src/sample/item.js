@@ -1,5 +1,6 @@
 
 
+
 ItemEvents.entityInteracted('minecraft:stick', event => {
     // event.target.persistentData.putBoolean("enemy", true);
     // let nbt = event.target.getNbt()
@@ -7,6 +8,7 @@ ItemEvents.entityInteracted('minecraft:stick', event => {
     // event.target.mergeNbt(nbt);
     // event.target.mergeNbt({"Tags":["AnotherTag"]});
     // event.player.tell('测试persistentData');
+    event.target.moveTo(new Vec3(0, 0, 0))
 })
 
 ItemEvents.rightClicked('minecraft:stick', event => {

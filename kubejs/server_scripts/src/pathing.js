@@ -38,7 +38,7 @@ LevelEvents.tick(event => {
                         }
                     }
                 }
-            } else if(!entity.persistentData.getInt("side") == 2) { // 友军，白方->黄方
+            } else if(entity.persistentData.getInt("side") == 2) { // 友军，白方->黄方
                 if ( is_in_range(3, navi_pos, entity_pos) ) { // 距离在3m内说明已到达设定的路径点
                     if (navi_code_arr[0] == 2 ) { // 导航点导向白方
                         if (navi_code_arr[2] == 0) { // 已抵达峡谷附近，切换为导向黄方

@@ -4,8 +4,6 @@
 
 console.info('Hello, World! (Loaded server scripts)')
 
-const $Vec3 = Java.loadClass(`net.minecraft.world.phys.Vec3`)
-
 const MONSTER_LIST = [
     'minecraft:skeleton', 'minecraft:stray', 'minecraft:wither_skeleton', 
     'minecraft:zombie', 'minecraft:husk', 'minecraft:drowned', 'minecraft:zombie_villager',
