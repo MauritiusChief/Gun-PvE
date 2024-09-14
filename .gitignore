@@ -8,10 +8,7 @@ config/sound_physics_remastered/
 config/jei/
 config/easy_npc/skin/
 
-config/tacz/custom/**/display/
-config/tacz/custom/**/animations/
-config/tacz/custom/**/textures/
-config/tacz/custom/**/sounds/
+config/tacz/custom/**/
 
 !defaultconfigs/
 
