@@ -35,6 +35,7 @@ function generate_entity(level, map_var, entity_id, start_code, amount, preset, 
         nbt.Tags = [];
         nbt.Tags.push(tag); // 标签（敌人或盟友）
         nbt.PersistenceRequired = true;
+        nbt.ScaleFactor = 0.75 + Math.random() * 0.5;
         newEntity.mergeNbt(nbt);
         const coordinatesMap = {
             0: 'north_start', 1: 'north_start',
