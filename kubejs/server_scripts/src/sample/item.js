@@ -1,4 +1,7 @@
-
+BlockEvents.rightClicked('chest', event => {
+    // let items = event.block.getInventory().getAllItems()
+    event.block.getBlockState().getProperties().contains("axis")
+})
 
 
 ItemEvents.entityInteracted('minecraft:stick', event => {
@@ -27,6 +30,7 @@ ItemEvents.entityInteracted('minecraft:diamond', event => {
     event.target.absMoveTo(0, 0, 0)
     // console.log(event.target)
     // event.server.tell(event.player)
+    event.target.potion
 })
 
 ItemEvents.foodEaten('minecraft:cooked_beef', event => {

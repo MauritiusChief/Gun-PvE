@@ -1,4 +1,4 @@
-summon zombie 7.5 -60 -47.5 {Tags:["enemy"], ArmorItems:[{},{},{},{id: "iron_helmet",Count:1}]}
+summon zombie 7.5 -60 -47.5 {Tags:["enemy"], ArmorItems:[{},{},{},{id: "iron_helmet",Count:1}], attributes:[{Base:10,Name:"generic.max_health"}]}
 summon zombie_horse 7.5 -60 -47.5 { Passengers:[{id:"minecraft:zombie", Tags:["enemy"]}], Tags:["enemy"]}
 summon drowned 7.5 -60 -47.5 {Tags:["enemy"]}
 

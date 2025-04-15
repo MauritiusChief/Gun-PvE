@@ -29,8 +29,8 @@ function generate_entity(level, map_var, entity_id, start_code, amount, preset, 
         newEntity.persistentData.putInt("navi_count_down", 1); // 导航倒计时
         
         let nbt = newEntity.getNbt();
-        nbt.HandItems = entity_data.HandItems;
-        nbt.ArmorItems = entity_data.ArmorItems;
+        if (entity_data.HandItems !== "no_change") nbt.HandItems = entity_data.HandItems;
+        if (entity_data.ArmorItems !== "no_change") nbt.ArmorItems = entity_data.ArmorItems;
         // nbt.Motion[0] = side == 2 ? -1.0 : 1.0;
         nbt.Tags = [];
         nbt.Tags.push(tag); // 标签（敌人或盟友）

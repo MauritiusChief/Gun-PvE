@@ -64,8 +64,8 @@ const MAP_POS = {
 const ENEMY_PRESET = {
     norm: {
         id: "minecraft:zombie",
-        HandItems: [{},{}],
-        ArmorItems: [{},{},{},{}],
+        HandItems: "no_change",
+        ArmorItems: "no_change",
     },
     shovel: {
         id: "minecraft:zombie",
@@ -75,31 +75,21 @@ const ENEMY_PRESET = {
 }
 
 const ALLY_PRESET = {
-    cobble: {
+    wolf: {
         id: "minecraft:wolf",
-        HandItems: [{},{}],
-        ArmorItems: [{},{},{},{}],
-    },
-    plank: {
-        id: "gaggle_of_golems:plank_golem",
-        HandItems: [{},{}],
-        ArmorItems: [{},{},{},{}],
+        HandItems: "no_change",
+        ArmorItems: "no_change",
     },
     iron: {
         id: "minecraft:iron_golem",
-        HandItems: [{},{}],
-        ArmorItems: [{},{},{},{}],
-    },
-    furnace: {
-        id: "gaggle_of_golems:furnace_golem",
-        HandItems: [{},{}],
-        ArmorItems: [{},{},{},{}],
+        HandItems: "no_change",
+        ArmorItems: "no_change",
     }
 }
 
 const ENEMY_WAVE_DATA = {
     1: {
-        norm: {amount: 10, start: [0, 1, 2, 3, 4, 5]},
+        norm: {amount: 50, start: [0, 1, 2, 3, 4, 5]},
     },
     2: {
         norm: {amount: 1, start: [0, 1, 2, 3, 4, 5]},
@@ -109,9 +99,9 @@ const ENEMY_WAVE_DATA = {
 
 const ALLY_WAVE_DATA = {
     1: {
-        cobble: {amount: 10, start: [0, 1, 2, 3, 4, 5]},
+        wolf: {amount: 50, start: [0, 1, 2, 3, 4, 5]},
     },
     2: {
-        cobble: {amount: 2, start: [0, 1, 2, 3, 4, 5]}
+        wolf: {amount: 2, start: [0, 1, 2, 3, 4, 5]}
     }
 }

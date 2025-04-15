@@ -3,7 +3,8 @@ const LivingEntity = Java.loadClass('net.minecraft.world.entity.LivingEntity')
 const TargetingConditions = Java.loadClass('net.minecraft.world.entity.ai.targeting.TargetingConditions')
 
 EntityEvents.spawned(event => {
-    let entity = event.entity;
+    // let entity = event.entity;
+    // entity.navigation
     // entity.getLevel().getNearbyEntities()
     // entity.getLevel().getNearestEntity()
     // entity.getLevel().getNearestPlayer()

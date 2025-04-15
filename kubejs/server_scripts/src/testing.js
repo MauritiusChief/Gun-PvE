@@ -45,3 +45,8 @@ ServerEvents.commandRegistry(event => {
 //     newEnemy.mergeNbt(nbt);
 //     level.getServer().runCommandSilent(`/tp @e[x=0,y=0,z=0,distance=..3] @p`)
 // }
+
+// PlayerEvents.tick(e => {
+// 	e.level.getBlock(x, y, z)
+// 	e.level.spawnParticles()
+// })
