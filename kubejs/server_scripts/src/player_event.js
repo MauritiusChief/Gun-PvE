@@ -4,6 +4,7 @@
  * /kubejs persistent_data entity @s remove z_reached
  * /kubejs persistent_data entity @s merge {spawn_highway:true}
  * /kubejs persistent_data entity @s merge {spawn_mobs:true}
+ * /kubejs persistent_data entity @s merge {spawn_mobs:false}
  */
 
 var ticker = 0
@@ -27,6 +28,7 @@ PlayerEvents.tick( event => {
 
     ticker++;
 
+    /* 生成地图部分 */
     function decideTemplate() {
         let temp_decider = Math.random()
         if (temp_decider > 3.0/4) {
@@ -64,6 +66,7 @@ PlayerEvents.tick( event => {
         server.runCommandSilent(`/kill @e[type=item,nbt={Item:{id:"minecraft:cyan_terracotta"}}]`)
     }
 
+    /* 生成怪物部分 */
     var mobX = 1.5
     if (player_x_double < 3.5) {
         mobX = 1.5
@@ -151,4 +154,6 @@ PlayerEvents.tick( event => {
             spawnMobTracker["pillager"]--;
         }
     }
+
+    
 })
