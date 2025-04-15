@@ -8,10 +8,11 @@
 
 var ticker = 0
 var spawnMobTracker = {
-    "creeper":  Math.ceil(10  * (0.75+0.5*Math.random())),
-    "piglin":   Math.ceil(30  * (0.75+0.5*Math.random())),
+    "creeper":  Math.ceil(5  * (0.75+0.5*Math.random())),
+    "piglin":   Math.ceil(20  * (0.75+0.5*Math.random())),
     "skeleton": Math.ceil(60  * (0.75+0.5*Math.random())),
     "ravager":  Math.ceil(120 * (0.75+0.5*Math.random())),
+    "pillager": Math.ceil(300 * (0.75+0.5*Math.random())),
 }
 
 PlayerEvents.tick( event => {
@@ -86,7 +87,10 @@ PlayerEvents.tick( event => {
         if (handItemId) { mob.mergeNbt({HandItems:[{id:handItemId,Count:1},{}]}) }
         if (extrNbt) { mob.mergeNbt(extrNbt) }
         mob.setPosition(pos[0], -60, pos[1])
+        // let test = player.getRotationVector()
+        // mob.setRotation(test.x, test.y)
         mob.spawn();
+        server.runCommandSilent(`/tp ${mob.getStringUuid()} ${mob.getX()} ${mob.getY()} ${mob.getZ()} 180 0`)
     }
     
     if (spawnMobs && ticker == 20) {
@@ -97,6 +101,7 @@ PlayerEvents.tick( event => {
             summon_mob("creeper", [mobX, player.getZ()+8.0], "评论占位符", "yellow", "", {})
             spawnMobTracker["creeper"] = Math.ceil(10  * (0.75+0.5*Math.random()))
         } else {
+            // event.server.tell("creeper: "+spawnMobTracker["creeper"])
             spawnMobTracker["creeper"]--;
         }
 
@@ -106,15 +111,20 @@ PlayerEvents.tick( event => {
             })
             spawnMobTracker["piglin"] = Math.ceil(30  * (0.75+0.5*Math.random()))
         } else {
+            // event.server.tell("piglin: "+spawnMobTracker["piglin"])
             spawnMobTracker["piglin"]--;
         }
 
         if (spawnMobTracker["skeleton"] == 0) {
-            Array(5).fill("c").forEach(() => {
+            Array(3).fill("c").forEach(() => {
                 summon_mob("skeleton", [mobX, player.getZ()+8.0], "用户名占位符", "red", "bow", {})
+            })
+            Array(3).fill("c").forEach(() => {
+                summon_mob("wither_skeleton", [mobX, player.getZ()+8.0], "用户名占位符", "red", "stone_sword", {})
             })
             spawnMobTracker["skeleton"] = Math.ceil(60  * (0.75+0.5*Math.random()))
         } else {
+            // event.server.tell("skeleton: "+spawnMobTracker["skeleton"])
             spawnMobTracker["skeleton"]--;
         }
 
@@ -124,8 +134,21 @@ PlayerEvents.tick( event => {
             })
             spawnMobTracker["ravager"] = Math.ceil(120  * (0.75+0.5*Math.random()))
         } else {
+            // event.server.tell("ravager: "+spawnMobTracker["ravager"])
             spawnMobTracker["ravager"]--;
         }
 
+        if (spawnMobTracker["pillager"] == 0) {
+            Array(30).fill("c").forEach(() => {
+                summon_mob("pillager", [mobX, player.getZ()+8.0], "用户名占位符", "red", "crossbow", {})
+            })
+            Array(30).fill("c").forEach(() => {
+                summon_mob("vindicator", [mobX, player.getZ()+8.0], "用户名占位符", "red", "iron_axe", {})
+            })
+            spawnMobTracker["pillager"] = Math.ceil(300  * (0.75+0.5*Math.random()))
+        } else {
+            // event.server.tell("pillager: "+spawnMobTracker["pillager"])
+            spawnMobTracker["pillager"]--;
+        }
     }
 })
