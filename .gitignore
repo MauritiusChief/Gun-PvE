@@ -6,9 +6,6 @@
 config/oculus.properties
 config/sound_physics_remastered/
 config/jei/
-config/easy_npc/skin/
-
-config/tacz/custom/**/
 
 !defaultconfigs/
 
