@@ -1,0 +1,109 @@
+
+/**
+ * 常用指令：
+ * /kubejs persistent_data entity @s remove z_reached
+ * /kubejs persistent_data entity @s merge {spawn_highway:true}
+ * /kubejs persistent_data entity @s merge {spawn_mobs:true}
+ */
+
+var ticker = 0
+
+PlayerEvents.tick( event => {
+    const player = event.player
+    const server = event.server
+    const level = event.getLevel()
+    let zValueReached = player.persistentData.getInt("z_reached")
+    let player_z = player.getBlockZ();
+    let player_x_double = player.getX();
+    let spawnHighway = player.persistentData.getBoolean("spawn_highway")
+    let spawnMobs = player.persistentData.getBoolean("spawn_mobs")
+
+    ticker++;
+
+    function decideTemplate() {
+        let temp_decider = Math.random()
+        if (temp_decider > 3.0/4) {
+            return "barrier"
+        } else if (temp_decider > 2.0/4) {
+            return "burn_car"
+        } else if (temp_decider > 1.0/4) {
+            return "crate"
+        } else {
+            return "car"
+        }
+    }
+
+    if (spawnHighway && player_z > zValueReached && player_z % 16 == 0) {
+        zValueReached = player_z
+        // event.server.tell("z值记录："+zValueReached)
+        player.persistentData.putInt("z_reached", zValueReached)
+
+        let spawn_z = zValueReached+16*3
+        // let spawn_z = zValueReached+16
+
+        server.runCommandSilent(`/place template gunpve:highway 0 -61 ${spawn_z}`)
+        let spawnRight = [[2, 0], [6, 0], [2, 8], [6, 8]]
+        let spawnLeft = [[21, 15], [17, 15], [21, 7], [17, 7]]
+        spawnRight.forEach(coor => {
+            if (Math.random() < 1.0/4) {
+                server.runCommandSilent(`/place template gunpve:${decideTemplate()} ${coor[0]} -60 ${spawn_z+coor[1]}`)
+            }
+        })
+        spawnLeft.forEach(coor => {
+            if (Math.random() < 1.0/4) {
+                server.runCommandSilent(`/place template gunpve:${decideTemplate()} ${coor[0]} -60 ${spawn_z+coor[1]} 180`)
+            }
+        })
+        server.runCommandSilent(`/kill @e[type=item,nbt={Item:{id:"minecraft:cyan_terracotta"}}]`)
+    }
+
+    var mobX = 1.5
+    if (player_x_double < 3.5) {
+        mobX = 1.5
+    } else if (player_x_double < 7.5) {
+        mobX = 5.5
+    } else if (player_x_double < 12) {
+        mobX = 9.5
+    } else if (player_x_double < 16.5) {
+        mobX = 14.5
+    } else if (player_x_double < 20.5) {
+        mobX = 18.5
+    } else {
+        mobX = 22.5
+    }
+
+    function summon_mob(id, pos, customName, customNameColor, handItemId, extrNbt) {
+        // server.runCommandSilent(`/summon minecraft:${id} ${pos[0]} -60 ${pos[1]} {, HandItems:[${HandItemNBT},{}]}`)
+        let mob = level.createEntity(`minecraft:${id}`)
+        mob.setCustomName(Component.of({"text": customName,"color": customNameColor, "bold": true}))
+        mob.setCustomNameVisible(true)
+        if (handItemId) { mob.mergeNbt({HandItems:[{id:handItemId,Count:1},{}]}) }
+        if (extrNbt) { mob.mergeNbt(extrNbt) }
+        mob.setPosition(pos[0], -60, pos[1])
+        mob.spawn();
+    }
+    
+    if (spawnMobs && ticker == 20*5) {
+        ticker = 0;
+        // event.server.tell("计时器触发")
+
+        if (Math.random() < 1.0/2) {
+            summon_mob("creeper", [mobX, player.getZ()+8.0], "评论占位符", "yellow", "", {})
+        }
+        if (Math.random() < 1.0/5) {
+            Array(2).fill("c").forEach(() => {
+                summon_mob("piglin", [mobX, player.getZ()+8.0], "用户名占位符", "red", "crossbow", {IsImmuneToZombification: true})
+            })
+        }
+        if (Math.random() < 1.0/10) {
+            Array(5).fill("c").forEach(() => {
+                summon_mob("skeleton", [mobX, player.getZ()+8.0], "用户名占位符", "red", "bow", {IsImmuneToZombification: true})
+            })
+        }
+        if (Math.random() < 1.0/20) {
+            Array(2).fill("c").forEach(() => {
+                summon_mob("ravager", [mobX, player.getZ()+8.0], "用户名占位符", "red", "bow", {IsImmuneToZombification: true})
+            })
+        }
+    }
+})
