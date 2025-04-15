@@ -7,6 +7,12 @@
  */
 
 var ticker = 0
+var spawnMobTracker = {
+    "creeper":  Math.ceil(10  * (0.75+0.5*Math.random())),
+    "piglin":   Math.ceil(30  * (0.75+0.5*Math.random())),
+    "skeleton": Math.ceil(60  * (0.75+0.5*Math.random())),
+    "ravager":  Math.ceil(120 * (0.75+0.5*Math.random())),
+}
 
 PlayerEvents.tick( event => {
     const player = event.player
@@ -83,27 +89,43 @@ PlayerEvents.tick( event => {
         mob.spawn();
     }
     
-    if (spawnMobs && ticker == 20*5) {
+    if (spawnMobs && ticker == 20) {
         ticker = 0;
         // event.server.tell("计时器触发")
 
-        if (Math.random() < 1.0/2) {
+        if (spawnMobTracker["creeper"] == 0) {
             summon_mob("creeper", [mobX, player.getZ()+8.0], "评论占位符", "yellow", "", {})
+            spawnMobTracker["creeper"] = Math.ceil(10  * (0.75+0.5*Math.random()))
+        } else {
+            spawnMobTracker["creeper"]--;
         }
-        if (Math.random() < 1.0/5) {
+
+        if (spawnMobTracker["piglin"] == 0) {
             Array(2).fill("c").forEach(() => {
                 summon_mob("piglin", [mobX, player.getZ()+8.0], "用户名占位符", "red", "crossbow", {IsImmuneToZombification: true})
             })
+            spawnMobTracker["piglin"] = Math.ceil(30  * (0.75+0.5*Math.random()))
+        } else {
+            spawnMobTracker["piglin"]--;
         }
-        if (Math.random() < 1.0/10) {
+
+        if (spawnMobTracker["skeleton"] == 0) {
             Array(5).fill("c").forEach(() => {
-                summon_mob("skeleton", [mobX, player.getZ()+8.0], "用户名占位符", "red", "bow", {IsImmuneToZombification: true})
+                summon_mob("skeleton", [mobX, player.getZ()+8.0], "用户名占位符", "red", "bow", {})
             })
+            spawnMobTracker["skeleton"] = Math.ceil(60  * (0.75+0.5*Math.random()))
+        } else {
+            spawnMobTracker["skeleton"]--;
         }
-        if (Math.random() < 1.0/20) {
+
+        if (spawnMobTracker["ravager"] == 0) {
             Array(2).fill("c").forEach(() => {
-                summon_mob("ravager", [mobX, player.getZ()+8.0], "用户名占位符", "red", "bow", {IsImmuneToZombification: true})
+                summon_mob("ravager", [mobX, player.getZ()+8.0], "用户名占位符", "red", "", {})
             })
+            spawnMobTracker["ravager"] = Math.ceil(120  * (0.75+0.5*Math.random()))
+        } else {
+            spawnMobTracker["ravager"]--;
         }
+
     }
 })
