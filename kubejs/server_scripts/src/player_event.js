@@ -205,6 +205,7 @@ function genName() {
 function genMsg() {
     const messages = [
         'hello',
+        'can you see me?',
         'omg',
         'lol',
         'uwu',
@@ -215,16 +216,22 @@ function genMsg() {
         'hahahahaha',
         'pog',
         'gg',
+        'cool!',
         'so cool',
+        'that’s cool',
         'what happened?',
         'who else is watching this?',
         '🔥🔥🔥',
+        'gooo',
         'let’s gooo',
+        'let’s go',
         'bruh',
         'same here',
         '😂😂',
         'that was crazy',
-        'this is wild'
+        'that’s crazy',
+        'this is wild',
+        'wild'
     ];
     // 10% chance: return a single random letter
     if (roll < 0.2) {
