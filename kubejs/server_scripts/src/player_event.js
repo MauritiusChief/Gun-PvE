@@ -14,6 +14,7 @@ var spawnMobTracker = {
     "skeleton": Math.ceil(20 * 60  * (0.5+1.0*Math.random())),
     "ravager":  Math.ceil(20 * 120 * (0.5+1.05*Math.random())),
     "pillager": Math.ceil(20 * 300 * (0.5+1.0*Math.random())),
+    "large_skeleton": Math.ceil(20 * 600 * (0.5+1.0*Math.random())),
 }
 var commentRash = false
 
@@ -101,7 +102,7 @@ PlayerEvents.tick( event => {
         Client.gui.setTitle("")
         Client.gui.setSubtitle(Component.of({"text": name,"color": "red", "bold": true}))
         player.setStatusMessage(Component.of([{"text":"Sent ","color":"white"},{"text":sent,"color":"yellow"}]))
-        player.displayClientMessage(Component.of([{"text": name,"color": "red", "bold": true},{"text":" Sent ","color":"white"},{"text":sent,"color":"yellow"}]), false)
+        player.displayClientMessage(Component.of([{"text": name,"color": "red"},{"text":" Sent ","color":"white"},{"text":sent,"color":"yellow"}]), false)
     }
     
     if (spawnMobs) {
@@ -151,6 +152,21 @@ PlayerEvents.tick( event => {
             spawnMobTracker["skeleton"]--;
         }
 
+        if (spawnMobTracker["large_skeleton"] == 0) {
+            let name = genName()
+            client_pack(name, "200x Skelenton 200x Wither Skelenton")
+            Array(200).fill("c").forEach(() => {
+                summon_mob("skeleton", [mobX, player.getZ()+12.0], name, "red", "bow", {})
+            })
+            Array(200).fill("c").forEach(() => {
+                summon_mob("wither_skeleton", [mobX, player.getZ()+12.0], name, "red", "stone_sword", {})
+            })
+            spawnMobTracker["large_skeleton"] = Math.ceil(20 * 600 * (0.25+2.0*Math.random()))
+        } else {
+            // event.server.tell("skeleton: "+spawnMobTracker["skeleton"])
+            spawnMobTracker["large_skeleton"]--;
+        }
+
         if (spawnMobTracker["ravager"] == 0) {
             let name = genName()
             client_pack(name, "3x Ravager")
@@ -169,7 +185,7 @@ PlayerEvents.tick( event => {
             Array(50).fill("c").forEach(() => {
                 summon_mob("pillager", [mobX, player.getZ()+12.0], name, "red", "crossbow", {})
             })
-            spawnMobTracker["pillager"] = Math.ceil(20 * 300 * (0.5+1.0*Math.random()))
+            spawnMobTracker["pillager"] = Math.ceil(20 * 300 * (0.25+2.0*Math.random()))
         } else {
             // event.server.tell("pillager: "+spawnMobTracker["pillager"])
             spawnMobTracker["pillager"]--;
@@ -185,26 +201,25 @@ function genName() {
     const number = Math.floor(Math.random() * 9000) + 1000; // 1000-9999
     const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
     const animal = animals[Math.floor(Math.random() * animals.length)];
-    return `${adj}${animal}${number}`;
+    return `${adj}${animal}_${number}`;
 }
   
 function genMsg() {
     const messages = [
-        'OMG',
+        'hello',
         'omg',
         'lol',
-        'LOL',
         'uwu',
-        'UWU',
-        'a','q','b',
         'abc',
         'nice!',
+        'no way!',
+        'good',
+        'hahahahaha',
         'pog',
+        'gg',
         'so cool',
         'what happened?',
         'who else is watching this?',
-        'wasd',
-        'qqqqq',
         '🔥🔥🔥',
         'let’s gooo',
         'bruh',
@@ -213,5 +228,16 @@ function genMsg() {
         'that was crazy',
         'this is wild'
     ];
-    return messages[Math.floor(Math.random() * messages.length)];
+    // 10% chance: return a single random letter
+    if (roll < 0.2) {
+        const letters = 'abcdefghijklmnopqrstuvwxyz';
+        return letters[Math.floor(Math.random() * letters.length)];
+    }
+    // Pick a random message
+    let msg = messages[Math.floor(Math.random() * messages.length)];
+    // 15% chance: convert to uppercase
+    if (roll < 0.4) {
+        msg = msg.toUpperCase();
+    }
+    return msg;
 }
