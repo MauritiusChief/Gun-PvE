@@ -94,34 +94,44 @@ PlayerEvents.tick( event => {
         // let test = player.getRotationVector()
         // mob.setRotation(test.x, test.y)
         mob.spawn();
-        // mob.setTarget(player)
+        server.runCommandSilent(`/team join Mob ${mob.getStringUuid()}`)
+    }
+
+    function client_pack(name, sent) {
+        Client.gui.setTitle("")
+        Client.gui.setSubtitle(Component.of({"text": name,"color": "red", "bold": true}))
+        player.setStatusMessage(Component.of([{"text":"Sent ","color":"white"},{"text":sent,"color":"yellow"}]))
+        player.displayClientMessage(Component.of([{"text": name,"color": "red", "bold": true},{"text":" Sent ","color":"white"},{"text":sent,"color":"yellow"}]), false)
     }
     
     if (spawnMobs) {
         // event.server.tell("计时器触发")
 
         if (spawnMobTracker["creeper"] == 0) {
-            summon_mob("creeper", [mobX, player.getZ()+10.0], "评论占位符", "yellow", "", {})
+            let msg = genMsg()
+            summon_mob("creeper", [mobX, player.getZ()+10.0], msg, "yellow", "", {})
             if (commentRash) {
-                spawnMobTracker["creeper"] = Math.ceil(5  * (0.75+0.5*Math.random()))
+                spawnMobTracker["creeper"] = Math.ceil(10 * (0.75+0.5*Math.random()))
             } else {
-                spawnMobTracker["creeper"] = Math.ceil(20 * 5 * (0.75+0.5*Math.random()))
+                spawnMobTracker["creeper"] = Math.ceil(20 * 8 * (0.75+0.5*Math.random()))
             }
         } else {
             // event.server.tell("creeper: "+spawnMobTracker["creeper"])
             spawnMobTracker["creeper"]--;
             // 每次评论结束时，都有概率更新commentRash状态
-            if (!commentRash && Math.random() < 0.25) {
+            if (!commentRash && Math.random() < 0.1) {
                 commentRash = true
             }
-            if (commentRash && Math.random() < 0.1) {
+            if (commentRash && Math.random() < 0.2) {
                 commentRash = false
             }
         }
 
         if (spawnMobTracker["piglin"] == 0) {
+            let name = genName()
+            client_pack(name, "2x Piglin")
             Array(2).fill("c").forEach(() => {
-                summon_mob("piglin", [mobX, player.getZ()+12.0], "用户名占位符", "red", "crossbow", {IsImmuneToZombification: true})
+                summon_mob("piglin", [mobX, player.getZ()+12.0], name, "red", "crossbow", {IsImmuneToZombification: true})
             })
             spawnMobTracker["piglin"] = Math.ceil(20 * 30 * (0.5+1.0*Math.random()))
         } else {
@@ -130,8 +140,10 @@ PlayerEvents.tick( event => {
         }
 
         if (spawnMobTracker["skeleton"] == 0) {
+            let name = genName()
+            client_pack(name, "5x Skelenton")
             Array(5).fill("c").forEach(() => {
-                summon_mob("skeleton", [mobX, player.getZ()+12.0], "用户名占位符", "red", "bow", {})
+                summon_mob("skeleton", [mobX, player.getZ()+12.0], name, "red", "bow", {})
             })
             spawnMobTracker["skeleton"] = Math.ceil(20 * 60 * (0.5+1.0*Math.random()))
         } else {
@@ -140,8 +152,10 @@ PlayerEvents.tick( event => {
         }
 
         if (spawnMobTracker["ravager"] == 0) {
-            Array(2).fill("c").forEach(() => {
-                summon_mob("ravager", [mobX, player.getZ()+12.0], "用户名占位符", "red", "", {})
+            let name = genName()
+            client_pack(name, "3x Ravager")
+            Array(3).fill("c").forEach(() => {
+                summon_mob("ravager", [mobX, player.getZ()+12.0], name, "red", "", {})
             })
             spawnMobTracker["ravager"] = Math.ceil(20 * 120 * (0.5+1.0*Math.random()))
         } else {
@@ -150,8 +164,10 @@ PlayerEvents.tick( event => {
         }
 
         if (spawnMobTracker["pillager"] == 0) {
+            let name = genName()
+            client_pack(name, "50x Pillager")
             Array(50).fill("c").forEach(() => {
-                summon_mob("pillager", [mobX, player.getZ()+12.0], "用户名占位符", "red", "crossbow", {})
+                summon_mob("pillager", [mobX, player.getZ()+12.0], name, "red", "crossbow", {})
             })
             spawnMobTracker["pillager"] = Math.ceil(20 * 300 * (0.5+1.0*Math.random()))
         } else {
@@ -162,3 +178,40 @@ PlayerEvents.tick( event => {
 
     
 })
+
+function genName() {
+    const adjectives = ['Cool', 'Fast', 'Happy', 'Chill', 'Lazy', 'Sneaky', 'Smart', 'Epic'];
+    const animals = ['Cat', 'Dog', 'Panda', 'Fox', 'Koala', 'Tiger', 'Wolf', 'Bear'];
+    const number = Math.floor(Math.random() * 9000) + 1000; // 1000-9999
+    const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
+    const animal = animals[Math.floor(Math.random() * animals.length)];
+    return `${adj}${animal}${number}`;
+}
+  
+function genMsg() {
+    const messages = [
+        'OMG',
+        'omg',
+        'lol',
+        'LOL',
+        'uwu',
+        'UWU',
+        'a','q','b',
+        'abc',
+        'nice!',
+        'pog',
+        'so cool',
+        'what happened?',
+        'who else is watching this?',
+        'wasd',
+        'qqqqq',
+        '🔥🔥🔥',
+        'let’s gooo',
+        'bruh',
+        'same here',
+        '😂😂',
+        'that was crazy',
+        'this is wild'
+    ];
+    return messages[Math.floor(Math.random() * messages.length)];
+}
