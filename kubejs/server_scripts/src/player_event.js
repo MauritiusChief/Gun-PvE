@@ -27,8 +27,6 @@ PlayerEvents.tick( event => {
     let spawnHighway = player.persistentData.getBoolean("spawn_highway")
     let spawnMobs = player.persistentData.getBoolean("spawn_mobs")
 
-    ticker++;
-
     /* 生成地图部分 */
     function decideTemplate() {
         let temp_decider = Math.random()
@@ -233,6 +231,7 @@ function genMsg() {
         'this is wild',
         'wild'
     ];
+    let roll = Math.random();
     // 10% chance: return a single random letter
     if (roll < 0.2) {
         const letters = 'abcdefghijklmnopqrstuvwxyz';
