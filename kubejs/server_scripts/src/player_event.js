@@ -84,13 +84,12 @@ PlayerEvents.tick( event => {
     }
 
     function summon_mob(id, pos, customName, customNameColor, handItemId, extrNbt) {
-        // server.runCommandSilent(`/summon minecraft:${id} ${pos[0]} -60 ${pos[1]} {, HandItems:[${HandItemNBT},{}]}`)
         let mob = level.createEntity(`minecraft:${id}`)
         mob.setCustomName(Component.of({"text": customName,"color": customNameColor, "bold": true}))
         mob.setCustomNameVisible(true)
         if (handItemId) { mob.mergeNbt({HandItems:[{id:handItemId,Count:1},{}]}) }
         if (extrNbt) { mob.mergeNbt(extrNbt) }
-        mob.setPosition(pos[0], -60, pos[1])
+        mob.setPositionAndRotation(pos[0], -60, pos[1], -90, 0)
         // let test = player.getRotationVector()
         // mob.setRotation(test.x, test.y)
         mob.spawn();
@@ -107,7 +106,7 @@ PlayerEvents.tick( event => {
     if (spawnMobs) {
         // event.server.tell("计时器触发")
 
-        if (spawnMobTimer["creeper"] == 0) {
+        if (spawnMobTimer["creeper"] == 0) { // 聊天消息
             let msg = genMsg()
             summon_mob("creeper", [mobX, player.getZ()+10.0], msg, "yellow", "", {})
             if (commentRash) {
@@ -151,21 +150,6 @@ PlayerEvents.tick( event => {
             spawnMobTimer["skeleton"]--;
         }
 
-        if (spawnMobTimer["large_skeleton"] == 0) {
-            let name = genName()
-            client_pack(name, "200x Skelenton 200x Wither Skelenton")
-            Array(200).fill("c").forEach(() => {
-                summon_mob("skeleton", [mobX, player.getZ()+12.0], name, "red", "bow", {})
-            })
-            Array(200).fill("c").forEach(() => {
-                summon_mob("wither_skeleton", [mobX, player.getZ()+12.0], name, "red", "stone_sword", {})
-            })
-            spawnMobTimer["large_skeleton"] = Math.ceil(20 * 600 * (0.25+2.0*Math.random()))
-        } else {
-            // event.server.tell("skeleton: "+spawnMobTimer["skeleton"])
-            spawnMobTimer["large_skeleton"]--;
-        }
-
         if (spawnMobTimer["ravager"] == 0) {
             let name = genName()
             client_pack(name, "3x Ravager")
@@ -184,10 +168,25 @@ PlayerEvents.tick( event => {
             Array(50).fill("c").forEach(() => {
                 summon_mob("pillager", [mobX, player.getZ()+12.0], name, "red", "crossbow", {})
             })
-            spawnMobTimer["pillager"] = Math.ceil(20 * 300 * (0.25+2.0*Math.random()))
+            spawnMobTimer["pillager"] = Math.ceil(20 * 300 * (0.25+1.5*Math.random()))
         } else {
             // event.server.tell("pillager: "+spawnMobTimer["pillager"])
             spawnMobTimer["pillager"]--;
+        }
+
+        if (spawnMobTimer["large_skeleton"] == 0) {
+            let name = genName()
+            client_pack(name, "200x Skelenton 200x Wither Skelenton")
+            Array(200).fill("c").forEach(() => {
+                summon_mob("skeleton", [mobX, player.getZ()+12.0], name, "red", "bow", {})
+            })
+            Array(200).fill("c").forEach(() => {
+                summon_mob("wither_skeleton", [mobX, player.getZ()+12.0], name, "red", "stone_sword", {})
+            })
+            spawnMobTimer["large_skeleton"] = Math.ceil(20 * 600 * (0.25+1.5*Math.random()))
+        } else {
+            // event.server.tell("skeleton: "+spawnMobTimer["skeleton"])
+            spawnMobTimer["large_skeleton"]--;
         }
     }
 
