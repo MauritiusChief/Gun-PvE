@@ -7,8 +7,7 @@
  * /kubejs persistent_data entity @s merge {spawn_mobs:false}
  */
 
-var ticker = 0
-var spawnMobTracker = {
+var spawnMobTimer = {
     "creeper":  Math.ceil(20 * 5  * (0.75+0.5*Math.random())),
     "piglin":   Math.ceil(20 * 20  * (0.5+1.0*Math.random())),
     "skeleton": Math.ceil(20 * 60  * (0.5+1.0*Math.random())),
@@ -108,17 +107,17 @@ PlayerEvents.tick( event => {
     if (spawnMobs) {
         // event.server.tell("计时器触发")
 
-        if (spawnMobTracker["creeper"] == 0) {
+        if (spawnMobTimer["creeper"] == 0) {
             let msg = genMsg()
             summon_mob("creeper", [mobX, player.getZ()+10.0], msg, "yellow", "", {})
             if (commentRash) {
-                spawnMobTracker["creeper"] = Math.ceil(10 * (0.75+0.5*Math.random()))
+                spawnMobTimer["creeper"] = Math.ceil(10 * (0.75+0.5*Math.random()))
             } else {
-                spawnMobTracker["creeper"] = Math.ceil(20 * 8 * (0.75+0.5*Math.random()))
+                spawnMobTimer["creeper"] = Math.ceil(20 * 8 * (0.75+0.5*Math.random()))
             }
         } else {
-            // event.server.tell("creeper: "+spawnMobTracker["creeper"])
-            spawnMobTracker["creeper"]--;
+            // event.server.tell("creeper: "+spawnMobTimer["creeper"])
+            spawnMobTimer["creeper"]--;
             // 每次评论结束时，都有概率更新commentRash状态
             if (!commentRash && Math.random() < 0.1) {
                 commentRash = true
@@ -128,31 +127,31 @@ PlayerEvents.tick( event => {
             }
         }
 
-        if (spawnMobTracker["piglin"] == 0) {
+        if (spawnMobTimer["piglin"] == 0) {
             let name = genName()
             client_pack(name, "2x Piglin")
             Array(2).fill("c").forEach(() => {
                 summon_mob("piglin", [mobX, player.getZ()+12.0], name, "red", "crossbow", {IsImmuneToZombification: true})
             })
-            spawnMobTracker["piglin"] = Math.ceil(20 * 30 * (0.5+1.0*Math.random()))
+            spawnMobTimer["piglin"] = Math.ceil(20 * 30 * (0.5+1.0*Math.random()))
         } else {
-            // event.server.tell("piglin: "+spawnMobTracker["piglin"])
-            spawnMobTracker["piglin"]--;
+            // event.server.tell("piglin: "+spawnMobTimer["piglin"])
+            spawnMobTimer["piglin"]--;
         }
 
-        if (spawnMobTracker["skeleton"] == 0) {
+        if (spawnMobTimer["skeleton"] == 0) {
             let name = genName()
             client_pack(name, "5x Skelenton")
             Array(5).fill("c").forEach(() => {
                 summon_mob("skeleton", [mobX, player.getZ()+12.0], name, "red", "bow", {})
             })
-            spawnMobTracker["skeleton"] = Math.ceil(20 * 60 * (0.5+1.0*Math.random()))
+            spawnMobTimer["skeleton"] = Math.ceil(20 * 60 * (0.5+1.0*Math.random()))
         } else {
-            // event.server.tell("skeleton: "+spawnMobTracker["skeleton"])
-            spawnMobTracker["skeleton"]--;
+            // event.server.tell("skeleton: "+spawnMobTimer["skeleton"])
+            spawnMobTimer["skeleton"]--;
         }
 
-        if (spawnMobTracker["large_skeleton"] == 0) {
+        if (spawnMobTimer["large_skeleton"] == 0) {
             let name = genName()
             client_pack(name, "200x Skelenton 200x Wither Skelenton")
             Array(200).fill("c").forEach(() => {
@@ -161,34 +160,34 @@ PlayerEvents.tick( event => {
             Array(200).fill("c").forEach(() => {
                 summon_mob("wither_skeleton", [mobX, player.getZ()+12.0], name, "red", "stone_sword", {})
             })
-            spawnMobTracker["large_skeleton"] = Math.ceil(20 * 600 * (0.25+2.0*Math.random()))
+            spawnMobTimer["large_skeleton"] = Math.ceil(20 * 600 * (0.25+2.0*Math.random()))
         } else {
-            // event.server.tell("skeleton: "+spawnMobTracker["skeleton"])
-            spawnMobTracker["large_skeleton"]--;
+            // event.server.tell("skeleton: "+spawnMobTimer["skeleton"])
+            spawnMobTimer["large_skeleton"]--;
         }
 
-        if (spawnMobTracker["ravager"] == 0) {
+        if (spawnMobTimer["ravager"] == 0) {
             let name = genName()
             client_pack(name, "3x Ravager")
             Array(3).fill("c").forEach(() => {
                 summon_mob("ravager", [mobX, player.getZ()+12.0], name, "red", "", {})
             })
-            spawnMobTracker["ravager"] = Math.ceil(20 * 120 * (0.5+1.0*Math.random()))
+            spawnMobTimer["ravager"] = Math.ceil(20 * 120 * (0.5+1.0*Math.random()))
         } else {
-            // event.server.tell("ravager: "+spawnMobTracker["ravager"])
-            spawnMobTracker["ravager"]--;
+            // event.server.tell("ravager: "+spawnMobTimer["ravager"])
+            spawnMobTimer["ravager"]--;
         }
 
-        if (spawnMobTracker["pillager"] == 0) {
+        if (spawnMobTimer["pillager"] == 0) {
             let name = genName()
             client_pack(name, "50x Pillager")
             Array(50).fill("c").forEach(() => {
                 summon_mob("pillager", [mobX, player.getZ()+12.0], name, "red", "crossbow", {})
             })
-            spawnMobTracker["pillager"] = Math.ceil(20 * 300 * (0.25+2.0*Math.random()))
+            spawnMobTimer["pillager"] = Math.ceil(20 * 300 * (0.25+2.0*Math.random()))
         } else {
-            // event.server.tell("pillager: "+spawnMobTracker["pillager"])
-            spawnMobTracker["pillager"]--;
+            // event.server.tell("pillager: "+spawnMobTimer["pillager"])
+            spawnMobTimer["pillager"]--;
         }
     }
 
