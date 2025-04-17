@@ -87,7 +87,7 @@ PlayerEvents.tick( event => {
         mob.setCustomNameVisible(true)
         if (handItemId) { mob.mergeNbt({HandItems:[{id:handItemId,Count:1},{}]}) }
         if (extrNbt) { mob.mergeNbt(extrNbt) }
-        mob.setPositionAndRotation(pos[0], -60, pos[1], -90, 0)
+        mob.setPosition(pos[0], -60, pos[1])
         // let test = player.getRotationVector()
         // mob.setRotation(test.x, test.y)
         mob.spawn();
@@ -108,7 +108,7 @@ PlayerEvents.tick( event => {
             let msg = genMsg()
             summon_mob("creeper", [mobX, player.getZ()+10.0], msg, "yellow", "", {})
             if (commentRash) {
-                spawnMobTimer["creeper"] = Math.ceil(10 * (0.75+0.5*Math.random()))
+                spawnMobTimer["creeper"] = Math.ceil(10 * (0.25+1.5*Math.random()))
             } else {
                 spawnMobTimer["creeper"] = Math.ceil(20 * 8 * (0.75+0.5*Math.random()))
             }
@@ -119,7 +119,7 @@ PlayerEvents.tick( event => {
             if (!commentRash && Math.random() < 0.1) {
                 commentRash = true
             }
-            if (commentRash && Math.random() < 0.2) {
+            if (commentRash && Math.random() < 0.05) {
                 commentRash = false
             }
         }
@@ -164,7 +164,7 @@ PlayerEvents.tick( event => {
             let name = genName()
             client_pack(name, "50x Pillager")
             Array(50).fill("c").forEach(() => {
-                summon_mob("pillager", [mobX, player.getZ()+12.0], name, "red", "crossbow", {})
+                summon_mob("pillager", [mobX, player.getZ()+16.0], name, "red", "crossbow", {})
             })
             spawnMobTimer["pillager"] = Math.ceil(20 * 300 * (0.25+1.5*Math.random()))
         } else {
@@ -176,10 +176,10 @@ PlayerEvents.tick( event => {
             let name = genName()
             client_pack(name, "200x Skelenton 200x Wither Skelenton")
             Array(200).fill("c").forEach(() => {
-                summon_mob("skeleton", [mobX, player.getZ()+12.0], name, "red", "bow", {})
+                summon_mob("skeleton", [mobX, player.getZ()+16.0], name, "red", "bow", {})
             })
             Array(200).fill("c").forEach(() => {
-                summon_mob("wither_skeleton", [mobX, player.getZ()+12.0], name, "red", "stone_sword", {})
+                summon_mob("wither_skeleton", [mobX, player.getZ()+16.0], name, "red", "stone_sword", {})
             })
             spawnMobTimer["large_skeleton"] = Math.ceil(20 * 600 * (0.25+1.5*Math.random()))
         } else {
@@ -201,46 +201,17 @@ function genName() {
 }
   
 function genMsg() {
-    const messages = [
-        'hello',
-        'can you see me?',
-        'omg',
-        'lol',
-        'uwu',
-        'abc',
-        'nice!',
-        'no way!',
-        'good',
-        'hahahahaha',
-        'pog',
-        'gg',
-        'cool!',
-        'so cool',
-        'that’s cool',
-        'what happened?',
-        'who else is watching this?',
-        '🔥🔥🔥',
-        'gooo',
-        'let’s gooo',
-        'let’s go',
-        'bruh',
-        'same here',
-        '😂😂',
-        'that was crazy',
-        'that’s crazy',
-        'this is wild',
-        'wild'
-    ];
+    const messages = ['hello','how are you','can you see me?','omg','lol','uwu','abc','nice!','no way!','that’s good','good','huh','hahahahahaha','hahahahaha','hahahaha','pog','gg','cool!','so cool','that’s cool','what happened?','any one watching?','who else is watching this?','🔥🔥🔥🔥🔥','🔥🔥🔥','gooooo','let’s gooo','let’s go','bruh','same here','😂😂😂','😂😂','that was crazy','that’s crazy','this is wild','wild'];
     let roll = Math.random();
-    // 10% chance: return a single random letter
+    // 20% chance: return a single random letter
     if (roll < 0.2) {
         const letters = 'abcdefghijklmnopqrstuvwxyz';
         return letters[Math.floor(Math.random() * letters.length)];
     }
     // Pick a random message
     let msg = messages[Math.floor(Math.random() * messages.length)];
-    // 15% chance: convert to uppercase
-    if (roll < 0.4) {
+    // 30% chance: convert to uppercase
+    if (roll < 0.3) {
         msg = msg.toUpperCase();
     }
     return msg;
