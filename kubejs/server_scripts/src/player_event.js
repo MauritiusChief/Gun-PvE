@@ -14,8 +14,8 @@ var spawnMobTimer = {
     "ravager":  Math.ceil(20 * 120 * (0.5+1.05*Math.random())),
     "pillager": Math.ceil(20 * 300 * (0.5+1.0*Math.random())),
     "large_skeleton": Math.ceil(20 * 600 * (0.5+1.0*Math.random())),
-    // "zombie": Math.ceil(20 * 600 * (0.5+1.0*Math.random())),
-    "zombie": Math.ceil(20 * 10),
+    "zombie": Math.ceil(20 * 600 * (0.5+1.0*Math.random())),
+    // "zombie": Math.ceil(20 * 10),
 }
 var commentRash = false
 
@@ -119,7 +119,7 @@ PlayerEvents.tick( event => {
             let msg = genMsg()
             summon_mob("creeper", [mobX, player.getZ()+10.0], msg, "yellow")
             if (commentRash) {
-                spawnMobTimer["creeper"] = Math.ceil(10 * (0.25+1.5*Math.random()))
+                spawnMobTimer["creeper"] = Math.ceil(20 * 1 * (0.25+1.5*Math.random()))
             } else {
                 spawnMobTimer["creeper"] = Math.ceil(20 * 8 * (0.75+0.5*Math.random()))
             }
@@ -127,7 +127,7 @@ PlayerEvents.tick( event => {
             // event.server.tell("creeper: "+spawnMobTimer["creeper"])
             spawnMobTimer["creeper"]--;
             // 每次评论结束时，都有概率更新commentRash状态
-            if (!commentRash && Math.random() < 0.1) {
+            if (!commentRash && Math.random() < 0.05) {
                 commentRash = true
             }
             if (commentRash && Math.random() < 0.05) {
