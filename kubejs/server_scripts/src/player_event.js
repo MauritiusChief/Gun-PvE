@@ -101,7 +101,7 @@ PlayerEvents.tick( event => {
             mob.health = max_health * multi;
             let attack_damage =  mob.getAttribute('generic.attack_damage').getBaseValue()
             mob.getAttribute('generic.attack_damage').setBaseValue(attack_damage * (1 + (multi-1)*0.25));
-            mob.mergeNbt({ScaleFactor: (1 + (multi-1)*0.2)})
+            mob.mergeNbt({ScaleFactor: Math.sqrt(multi)})
         }
         mob.setPosition(task.pos[0] - 0.1 + 0.2*Math.random(), -59.8, task.pos[1] - 0.1 + 0.2*Math.random())
         // let test = player.getRotationVector()
