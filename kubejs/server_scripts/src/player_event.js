@@ -11,12 +11,13 @@ var spawnMobTimer = {
     "creeper":  Math.ceil(20 * 5  * (0.75+0.5*Math.random())),
     "piglin":   Math.ceil(20 * 20  * (0.5+1.0*Math.random())),
     "skeleton": Math.ceil(20 * 60  * (0.5+1.0*Math.random())),
-    "ravager":  Math.ceil(20 * 120 * (0.5+1.05*Math.random())),
-    "pillager": Math.ceil(20 * 300 * (0.5+1.0*Math.random())),
-    "large_skeleton": Math.ceil(20 * 600 * (0.5+1.0*Math.random())),
-    "zombie": Math.ceil(20 * 600 * (0.5+1.0*Math.random())),
+    "ravager":  Math.ceil(20 * 120 * (0.5+1.0*Math.random())),
+    "pillager": Math.ceil(20 * 300 * (0.25+1.5*Math.random())),
+    "wither_skeleton": Math.ceil(20 * 600 * (0.25+1.5*Math.random())),
+    "zombie": Math.ceil(20 * 600 * (0.25+1.5*Math.random())),
     // "zombie": Math.ceil(20 * 10),
 }
+var spawnMobStack = []
 var commentRash = false
 
 PlayerEvents.tick( event => {
@@ -96,7 +97,7 @@ PlayerEvents.tick( event => {
             mob.health = max_health * multi;
             let attack_damage =  mob.getAttribute('generic.attack_damage').getBaseValue()
             mob.getAttribute('generic.attack_damage').setBaseValue(attack_damage * multi/4);
-            mob.mergeNbt({ScaleFactor: multi/4.0})
+            mob.mergeNbt({ScaleFactor: multi/5.0})
         }
         mob.setPosition(pos[0], -60, pos[1])
         // let test = player.getRotationVector()
@@ -121,18 +122,18 @@ PlayerEvents.tick( event => {
             if (commentRash) {
                 spawnMobTimer["creeper"] = Math.ceil(20 * 1 * (0.25+1.5*Math.random()))
             } else {
-                spawnMobTimer["creeper"] = Math.ceil(20 * 8 * (0.75+0.5*Math.random()))
+                spawnMobTimer["creeper"] = Math.ceil(20 * 10 * (0.75+0.5*Math.random()))
+            }
+            // 每次触发评论时，都有概率更新commentRash状态 
+            if (!commentRash && Math.random() < 0.3) {
+                commentRash = true
+            }
+            if (commentRash && Math.random() < 0.2) {
+                commentRash = false
             }
         } else {
             // event.server.tell("creeper: "+spawnMobTimer["creeper"])
             spawnMobTimer["creeper"]--;
-            // 每次评论结束时，都有概率更新commentRash状态
-            if (!commentRash && Math.random() < 0.05) {
-                commentRash = true
-            }
-            if (commentRash && Math.random() < 0.05) {
-                commentRash = false
-            }
         }
 
         if (spawnMobTimer["piglin"] == 0) {
@@ -183,19 +184,16 @@ PlayerEvents.tick( event => {
             spawnMobTimer["pillager"]--;
         }
 
-        if (spawnMobTimer["large_skeleton"] == 0) {
+        if (spawnMobTimer["wither_skeleton"] == 0) {
             let name = genName()
-            client_pack(name, "200x Skelenton 200x Wither Skelenton")
-            Array(20).fill("c").forEach(() => {
-                summon_mob("skeleton", [mobX, player.getZ()+16.0], name, "red", "bow", {}, 10)
-            })
-            Array(20).fill("c").forEach(() => {
+            client_pack(name, "400x Wither Skelenton")
+            Array(40).fill("c").forEach(() => {
                 summon_mob("wither_skeleton", [mobX, player.getZ()+16.0], name, "red", "stone_sword", {}, 10)
             })
-            spawnMobTimer["large_skeleton"] = Math.ceil(20 * 600 * (0.25+1.5*Math.random()))
+            spawnMobTimer["wither_skeleton"] = Math.ceil(20 * 600 * (0.25+1.5*Math.random()))
         } else {
-            // event.server.tell("large_skeleton: "+spawnMobTimer["large_skeleton"])
-            spawnMobTimer["large_skeleton"]--;
+            // event.server.tell("wither_skeleton: "+spawnMobTimer["wither_skeleton"])
+            spawnMobTimer["wither_skeleton"]--;
         }
 
         if (spawnMobTimer["zombie"] == 0) {
@@ -209,6 +207,7 @@ PlayerEvents.tick( event => {
             // event.server.tell("zombie: "+spawnMobTimer["zombie"])
             spawnMobTimer["zombie"]--;
         }
+
     }
 
     

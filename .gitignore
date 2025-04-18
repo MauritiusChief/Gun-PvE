@@ -8,6 +8,10 @@ config/sound_physics_remastered/
 config/jei/
 config/worldedit/
 
+!tacz/
+tacz/lradd_default_gun
+tacz/tacz_default_gun
+
 !defaultconfigs/
 
 !kubejs/
