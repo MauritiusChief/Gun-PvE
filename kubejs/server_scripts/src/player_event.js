@@ -15,7 +15,7 @@ var spawnMobTimer = {
     "pillager": Math.ceil(20 * 300 * (0.25+1.5*Math.random())),
     "wither_skeleton": Math.ceil(20 * 600 * (0.25+1.5*Math.random())),
     "zombie": Math.ceil(20 * 600 * (0.25+1.5*Math.random())),
-    // "zombie": Math.ceil(20 * 10),
+    // "zombie": 20 * 10,
 }
 var spawnMobStack = []
 var commentRash = false
@@ -85,21 +85,25 @@ PlayerEvents.tick( event => {
         mobX = 22.5
     }
 
-    function summon_mob(id, pos, customName, customNameColor, handItemId, extrNbt, multi) {
-        let mob = level.createEntity(`minecraft:${id}`)
-        mob.setCustomName(Component.of({"text": customName,"color": customNameColor, "bold": true}))
+    function summon_mob(task) {
+        // console.log(task)
+        let mob = level.createEntity(`minecraft:${task.id}`)
+        mob.setCustomName(Component.of({"text": task.name, "color": task.color, "bold": true}))
         mob.setCustomNameVisible(true)
-        if (handItemId) { mob.mergeNbt({HandItems:[{id:handItemId,Count:1},{}]}) }
-        if (extrNbt) { mob.mergeNbt(extrNbt) }
-        if (multi && multi > 1) {
+        if (task.handItem !== null) { mob.mergeNbt({HandItems:[{id: task.handItem, Count: 1},{}]}) }
+        if (task.extraNbt !== null) { mob.mergeNbt(task.extraNbt) }
+        // console.log(task.multi > 1)
+        if (task.multi > 1) {
+            let multi = task.multi;
             let max_health =  mob.getAttribute('generic.max_health').getBaseValue()
+            // console.log(max_health * multi)
             mob.getAttribute('generic.max_health').setBaseValue(max_health * multi);
             mob.health = max_health * multi;
             let attack_damage =  mob.getAttribute('generic.attack_damage').getBaseValue()
-            mob.getAttribute('generic.attack_damage').setBaseValue(attack_damage * multi/4);
-            mob.mergeNbt({ScaleFactor: multi/5.0})
+            mob.getAttribute('generic.attack_damage').setBaseValue(attack_damage * (1 + (multi-1)*0.25));
+            mob.mergeNbt({ScaleFactor: (1 + (multi-1)*0.2)})
         }
-        mob.setPosition(pos[0], -60, pos[1])
+        mob.setPosition(task.pos[0] - 0.1 + 0.2*Math.random(), -59.8, task.pos[1] - 0.1 + 0.2*Math.random())
         // let test = player.getRotationVector()
         // mob.setRotation(test.x, test.y)
         mob.spawn();
@@ -118,7 +122,9 @@ PlayerEvents.tick( event => {
 
         if (spawnMobTimer["creeper"] == 0) { // 聊天消息
             let msg = genMsg()
-            summon_mob("creeper", [mobX, player.getZ()+10.0], msg, "yellow")
+            summon_mob({
+                id: "creeper", pos: [mobX, player.getZ()+12.0], name: msg, color: "yellow"
+            })
             if (commentRash) {
                 spawnMobTimer["creeper"] = Math.ceil(20 * 1 * (0.25+1.5*Math.random()))
             } else {
@@ -139,8 +145,8 @@ PlayerEvents.tick( event => {
         if (spawnMobTimer["piglin"] == 0) {
             let name = genName()
             client_pack(name, "2x Piglin")
-            Array(2).fill("c").forEach(() => {
-                summon_mob("piglin", [mobX, player.getZ()+12.0], name, "red", "crossbow", {IsImmuneToZombification: true})
+            spawnMobStack.push({count: 2,
+                id: "piglin", pos: [mobX, player.getZ()+12.0], name: name, color: "red", handItem: "crossbow", extraNbt: {IsImmuneToZombification: true},
             })
             spawnMobTimer["piglin"] = Math.ceil(20 * 30 * (0.5+1.0*Math.random()))
         } else {
@@ -151,8 +157,8 @@ PlayerEvents.tick( event => {
         if (spawnMobTimer["skeleton"] == 0) {
             let name = genName()
             client_pack(name, "5x Skelenton")
-            Array(5).fill("c").forEach(() => {
-                summon_mob("skeleton", [mobX, player.getZ()+12.0], name, "red", "bow")
+            spawnMobStack.push({count: 5,
+                id: "skeleton", pos: [mobX, player.getZ()+12.0], name: name, color: "red", handItem: "bow",
             })
             spawnMobTimer["skeleton"] = Math.ceil(20 * 60 * (0.5+1.0*Math.random()))
         } else {
@@ -163,8 +169,8 @@ PlayerEvents.tick( event => {
         if (spawnMobTimer["ravager"] == 0) {
             let name = genName()
             client_pack(name, "3x Ravager")
-            Array(3).fill("c").forEach(() => {
-                summon_mob("ravager", [mobX, player.getZ()+12.0], name, "red")
+            spawnMobStack.push({count: 3,
+                id: "ravager", pos: [mobX, player.getZ()+12.0], name: name, color: "red"
             })
             spawnMobTimer["ravager"] = Math.ceil(20 * 120 * (0.5+1.0*Math.random()))
         } else {
@@ -174,9 +180,9 @@ PlayerEvents.tick( event => {
 
         if (spawnMobTimer["pillager"] == 0) {
             let name = genName()
-            client_pack(name, "50x Pillager")
-            Array(50).fill("c").forEach(() => {
-                summon_mob("pillager", [mobX, player.getZ()+16.0], name, "red", "crossbow")
+            client_pack(name, "20x Pillager")
+            spawnMobStack.push({count: 20,
+                id: "pillager", pos: [mobX, player.getZ()+16.0], name: name, color: "red", handItem: "crossbow"
             })
             spawnMobTimer["pillager"] = Math.ceil(20 * 300 * (0.25+1.5*Math.random()))
         } else {
@@ -186,9 +192,9 @@ PlayerEvents.tick( event => {
 
         if (spawnMobTimer["wither_skeleton"] == 0) {
             let name = genName()
-            client_pack(name, "400x Wither Skelenton")
-            Array(40).fill("c").forEach(() => {
-                summon_mob("wither_skeleton", [mobX, player.getZ()+16.0], name, "red", "stone_sword", {}, 10)
+            client_pack(name, "40x Wither Skelenton")
+            spawnMobStack.push({count: 20,
+                id: "wither_skeleton", pos: [mobX, player.getZ()+16.0], name: name, color: "red", handItem: "stone_sword", multi: 2
             })
             spawnMobTimer["wither_skeleton"] = Math.ceil(20 * 600 * (0.25+1.5*Math.random()))
         } else {
@@ -198,9 +204,9 @@ PlayerEvents.tick( event => {
 
         if (spawnMobTimer["zombie"] == 0) {
             let name = genName()
-            client_pack(name, "600x Zombie")
-            Array(60).fill("c").forEach(() => {
-                summon_mob("zombie", [mobX, player.getZ()+16.0], name, "red", "", {}, 10)
+            client_pack(name, "60x Zombie")
+            spawnMobStack.push({count: 30,
+                id: "zombie", pos: [mobX, player.getZ()+16.0], name: name, color: "red", multi: 2
             })
             spawnMobTimer["zombie"] = Math.ceil(20 * 600 * (0.25+1.5*Math.random()))
         } else {
@@ -208,6 +214,17 @@ PlayerEvents.tick( event => {
             spawnMobTimer["zombie"]--;
         }
 
+        // console.log(spawnMobStack)
+        if (spawnMobStack.length > 0) {
+            // console.log(spawnMobStack)
+            let spawnTask = spawnMobStack[0]
+            if (spawnTask.count > 0) {
+                summon_mob(spawnTask);
+                spawnTask.count--;
+            } else {
+                spawnMobStack.shift()
+            }
+        }
     }
 
     
