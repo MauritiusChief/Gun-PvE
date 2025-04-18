@@ -1,5 +1,5 @@
 {
-  "maxPhysicsObjects": 10000,
+  "maxPhysicsObjects": 475,
   "particleLifetimeVines": 4.0,
   "particleLifetimeItems": 3.0,
   "particleLifetimeParticles": 0.1,
@@ -115,7 +115,7 @@
   "itemRotationSpeed": 1.0,
   "jointBreakForce": 1.75,
   "jointBlood": 0.0,
-  "mobRagdollLimit": 16,
+  "mobRagdollLimit": 8,
   "clothEntityRange": 48.0,
   "clothForceArmor": false,
   "oceanPuddles": true,
