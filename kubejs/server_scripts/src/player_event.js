@@ -14,6 +14,8 @@ var spawnMobTimer = {
     "ravager":  Math.ceil(20 * 120 * (0.5+1.05*Math.random())),
     "pillager": Math.ceil(20 * 300 * (0.5+1.0*Math.random())),
     "large_skeleton": Math.ceil(20 * 600 * (0.5+1.0*Math.random())),
+    // "zombie": Math.ceil(20 * 600 * (0.5+1.0*Math.random())),
+    "zombie": Math.ceil(20 * 10),
 }
 var commentRash = false
 
@@ -35,7 +37,7 @@ PlayerEvents.tick( event => {
         } else if (temp_decider > 2.0/4) {
             return "burn_car"
         } else if (temp_decider > 1.0/4) {
-            return "crate"
+            return "crates"
         } else {
             return "car"
         }
@@ -49,7 +51,8 @@ PlayerEvents.tick( event => {
         let spawn_z = zValueReached+16*3
         // let spawn_z = zValueReached+16
 
-        server.runCommandSilent(`/place template gunpve:highway 0 -61 ${spawn_z}`)
+        server.runCommandSilent(`/place template gunpve:highway_cob 0 -61 ${spawn_z}`)
+        server.runCommandSilent(`/place template gunpve:highway 0 -61 ${spawn_z} none none 0.9`)
         let spawnRight = [[2, 0], [6, 0], [2, 8], [6, 8]]
         let spawnLeft = [[21, 15], [17, 15], [21, 7], [17, 7]]
         spawnRight.forEach(coor => {
@@ -81,12 +84,20 @@ PlayerEvents.tick( event => {
         mobX = 22.5
     }
 
-    function summon_mob(id, pos, customName, customNameColor, handItemId, extrNbt) {
+    function summon_mob(id, pos, customName, customNameColor, handItemId, extrNbt, multi) {
         let mob = level.createEntity(`minecraft:${id}`)
         mob.setCustomName(Component.of({"text": customName,"color": customNameColor, "bold": true}))
         mob.setCustomNameVisible(true)
         if (handItemId) { mob.mergeNbt({HandItems:[{id:handItemId,Count:1},{}]}) }
         if (extrNbt) { mob.mergeNbt(extrNbt) }
+        if (multi && multi > 1) {
+            let max_health =  mob.getAttribute('generic.max_health').getBaseValue()
+            mob.getAttribute('generic.max_health').setBaseValue(max_health * multi);
+            mob.health = max_health * multi;
+            let attack_damage =  mob.getAttribute('generic.attack_damage').getBaseValue()
+            mob.getAttribute('generic.attack_damage').setBaseValue(attack_damage * multi/4);
+            mob.mergeNbt({ScaleFactor: multi/4.0})
+        }
         mob.setPosition(pos[0], -60, pos[1])
         // let test = player.getRotationVector()
         // mob.setRotation(test.x, test.y)
@@ -106,7 +117,7 @@ PlayerEvents.tick( event => {
 
         if (spawnMobTimer["creeper"] == 0) { // 聊天消息
             let msg = genMsg()
-            summon_mob("creeper", [mobX, player.getZ()+10.0], msg, "yellow", "", {})
+            summon_mob("creeper", [mobX, player.getZ()+10.0], msg, "yellow")
             if (commentRash) {
                 spawnMobTimer["creeper"] = Math.ceil(10 * (0.25+1.5*Math.random()))
             } else {
@@ -140,7 +151,7 @@ PlayerEvents.tick( event => {
             let name = genName()
             client_pack(name, "5x Skelenton")
             Array(5).fill("c").forEach(() => {
-                summon_mob("skeleton", [mobX, player.getZ()+12.0], name, "red", "bow", {})
+                summon_mob("skeleton", [mobX, player.getZ()+12.0], name, "red", "bow")
             })
             spawnMobTimer["skeleton"] = Math.ceil(20 * 60 * (0.5+1.0*Math.random()))
         } else {
@@ -152,7 +163,7 @@ PlayerEvents.tick( event => {
             let name = genName()
             client_pack(name, "3x Ravager")
             Array(3).fill("c").forEach(() => {
-                summon_mob("ravager", [mobX, player.getZ()+12.0], name, "red", "", {})
+                summon_mob("ravager", [mobX, player.getZ()+12.0], name, "red")
             })
             spawnMobTimer["ravager"] = Math.ceil(20 * 120 * (0.5+1.0*Math.random()))
         } else {
@@ -164,7 +175,7 @@ PlayerEvents.tick( event => {
             let name = genName()
             client_pack(name, "50x Pillager")
             Array(50).fill("c").forEach(() => {
-                summon_mob("pillager", [mobX, player.getZ()+16.0], name, "red", "crossbow", {})
+                summon_mob("pillager", [mobX, player.getZ()+16.0], name, "red", "crossbow")
             })
             spawnMobTimer["pillager"] = Math.ceil(20 * 300 * (0.25+1.5*Math.random()))
         } else {
@@ -175,16 +186,28 @@ PlayerEvents.tick( event => {
         if (spawnMobTimer["large_skeleton"] == 0) {
             let name = genName()
             client_pack(name, "200x Skelenton 200x Wither Skelenton")
-            Array(200).fill("c").forEach(() => {
-                summon_mob("skeleton", [mobX, player.getZ()+16.0], name, "red", "bow", {})
+            Array(20).fill("c").forEach(() => {
+                summon_mob("skeleton", [mobX, player.getZ()+16.0], name, "red", "bow", {}, 10)
             })
-            Array(200).fill("c").forEach(() => {
-                summon_mob("wither_skeleton", [mobX, player.getZ()+16.0], name, "red", "stone_sword", {})
+            Array(20).fill("c").forEach(() => {
+                summon_mob("wither_skeleton", [mobX, player.getZ()+16.0], name, "red", "stone_sword", {}, 10)
             })
             spawnMobTimer["large_skeleton"] = Math.ceil(20 * 600 * (0.25+1.5*Math.random()))
         } else {
-            // event.server.tell("skeleton: "+spawnMobTimer["skeleton"])
+            // event.server.tell("large_skeleton: "+spawnMobTimer["large_skeleton"])
             spawnMobTimer["large_skeleton"]--;
+        }
+
+        if (spawnMobTimer["zombie"] == 0) {
+            let name = genName()
+            client_pack(name, "600x Zombie")
+            Array(60).fill("c").forEach(() => {
+                summon_mob("zombie", [mobX, player.getZ()+16.0], name, "red", "", {}, 10)
+            })
+            spawnMobTimer["zombie"] = Math.ceil(20 * 600 * (0.25+1.5*Math.random()))
+        } else {
+            // event.server.tell("zombie: "+spawnMobTimer["zombie"])
+            spawnMobTimer["zombie"]--;
         }
     }
 
