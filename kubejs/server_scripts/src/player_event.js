@@ -8,14 +8,16 @@
  */
 
 var spawnMobTimer = {
-    "creeper":  Math.ceil(20 * 5  * (0.75+0.5*Math.random())),
-    "piglin":   Math.ceil(20 * 20  * (0.5+1.0*Math.random())),
-    "skeleton": Math.ceil(20 * 60  * (0.5+1.0*Math.random())),
-    "ravager":  Math.ceil(20 * 120 * (0.5+1.0*Math.random())),
-    "pillager": Math.ceil(20 * 300 * (0.25+1.5*Math.random())),
-    "wither_skeleton": Math.ceil(20 * 600 * (0.25+1.5*Math.random())),
-    "zombie": Math.ceil(20 * 600 * (0.25+1.5*Math.random())),
+    "creeper":          20*10 + Math.ceil(20 * 10  * (0.75+0.5*Math.random())),
+    "piglin":           20*10 + Math.ceil(20 * 20  * (0.5+1.0*Math.random())),
+    "skeleton":         20*10 + Math.ceil(20 * 60  * (0.5+1.0*Math.random())),
+    "ravager":          20*10 + Math.ceil(20 * 120 * (0.5+1.0*Math.random())),
+    "pillager":         20*10 + Math.ceil(20 * 60 * 5 * (0.25+1.5*Math.random())),
+    "wither_skeleton":  20*10 + Math.ceil(20 * 60 * 10 * (0.25+1.5*Math.random())),
+    "zombie":           20*10 + Math.ceil(20 * 60 * 15 * (0.25+1.5*Math.random())),
     // "zombie": 20 * 10,
+    "elder_guardian":   20*10 + Math.ceil(20 * 60 * 30 * (0.25+1.5*Math.random())),
+    "warden":           20*10 + Math.ceil(20 * 60 * 60 * (0.25+1.5*Math.random())),
 }
 var spawnMobStack = []
 var commentRash = false
@@ -122,7 +124,7 @@ PlayerEvents.tick( event => {
 
         if (spawnMobTimer["creeper"] == 0) { // 聊天消息
             let msg = genMsg()
-            summon_mob({
+            spawnMobStack.push({count: 1,
                 id: "creeper", pos: [mobX, player.getZ()+12.0], name: msg, color: "yellow"
             })
             if (commentRash) {
@@ -212,6 +214,30 @@ PlayerEvents.tick( event => {
         } else {
             // event.server.tell("zombie: "+spawnMobTimer["zombie"])
             spawnMobTimer["zombie"]--;
+        }
+
+        if (spawnMobTimer["elder_guardian"] == 0) {
+            let name = genName()
+            client_pack(name, "25x Elder Guardian")
+            spawnMobStack.push({count: 25,
+                id: "elder_guardian", pos: [mobX, player.getZ()+16.0], name: name, color: "red"
+            })
+            spawnMobTimer["elder_guardian"] = Math.ceil(20 * 600 * (0.25+1.5*Math.random()))
+        } else {
+            // event.server.tell("elder_guardian: "+spawnMobTimer["elder_guardian"])
+            spawnMobTimer["elder_guardian"]--;
+        }
+
+        if (spawnMobTimer["warden"] == 0) {
+            let name = genName()
+            client_pack(name, "1x Warden")
+            spawnMobStack.push({count: 1,
+                id: "warden", pos: [mobX, player.getZ()+16.0], name: name, color: "red"
+            })
+            spawnMobTimer["warden"] = Math.ceil(20 * 600 * (0.25+1.5*Math.random()))
+        } else {
+            // event.server.tell("warden: "+spawnMobTimer["warden"])
+            spawnMobTimer["warden"]--;
         }
 
         // console.log(spawnMobStack)
