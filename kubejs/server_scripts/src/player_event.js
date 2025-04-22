@@ -5,6 +5,9 @@
  * /kubejs persistent_data entity @s merge {spawn_highway:true}
  * /kubejs persistent_data entity @s merge {spawn_mobs:true}
  * /kubejs persistent_data entity @s merge {spawn_mobs:false}
+ * 
+ * /kubejs persistent_data entity @s merge {follower:0}
+ * /kubejs persistent_data entity @s merge {likes:0}
  */
 
 var spawnMobTimer = {
@@ -20,6 +23,7 @@ var spawnMobTimer = {
     "warden":           20*10 + Math.ceil(20 * 60 * 60 * (0.25+1.5*Math.random())),
 }
 var spawnMobStack = []
+var goldStack = []
 var commentRash = false
 
 PlayerEvents.tick( event => {
@@ -71,22 +75,6 @@ PlayerEvents.tick( event => {
         server.runCommandSilent(`/kill @e[type=item,nbt={Item:{id:"minecraft:cyan_terracotta"}}]`)
     }
 
-    /* 生成怪物部分 */
-    var mobX = 1.5
-    if (player_x_double < 3.5) {
-        mobX = 1.5
-    } else if (player_x_double < 7.5) {
-        mobX = 5.5
-    } else if (player_x_double < 12) {
-        mobX = 9.5
-    } else if (player_x_double < 16.5) {
-        mobX = 14.5
-    } else if (player_x_double < 20.5) {
-        mobX = 18.5
-    } else {
-        mobX = 22.5
-    }
-
     function summon_mob(task) {
         // console.log(task)
         let mob = level.createEntity(`minecraft:${task.id}`)
@@ -118,8 +106,23 @@ PlayerEvents.tick( event => {
         player.setStatusMessage(Component.of([{"text":"Sent ","color":"white"},{"text":sent,"color":"yellow"}]))
         player.displayClientMessage(Component.of([{"text": name,"color": "red"},{"text":" Sent ","color":"white"},{"text":sent,"color":"yellow"}]), false)
     }
-    
+
+    /* 生成怪物部分 */
     if (spawnMobs) {
+        var mobX = 1.5
+        if (player_x_double < 3.5) {
+            mobX = 1.5
+        } else if (player_x_double < 7.5) {
+            mobX = 5.5
+        } else if (player_x_double < 12) {
+            mobX = 9.5
+        } else if (player_x_double < 16.5) {
+            mobX = 14.5
+        } else if (player_x_double < 20.5) {
+            mobX = 18.5
+        } else {
+            mobX = 22.5
+        }
         // event.server.tell("计时器触发")
 
         if (spawnMobTimer["creeper"] == 0) { // 聊天消息
