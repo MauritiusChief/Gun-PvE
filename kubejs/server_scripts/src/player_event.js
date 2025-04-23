@@ -24,7 +24,7 @@ let spawnMobTimer = {
     "warden":           20*10 + Math.ceil(20 * 60 * 60 * (0.25+1.5*Math.random())),
 }
 let spawnMobStack = [] // 包含所有已加入队列的生成任务
-let watchingStack = [] // 生成怪物时伴随的增加热度奖励
+let watchingStack = [] // 生成怪物时伴随的增加观看奖励
 let goldStack = [] // 生成怪物时伴随的金币奖励
 let commentRash = false
 
@@ -134,19 +134,23 @@ PlayerEvents.tick( event => {
         let watching = player.persistentData.getInt("watching")
         let followers = player.persistentData.getInt("followers")
 
-        if (watchingStack.length > 0) {watching += watchingStack.shift()} // 加上刷赞的热度奖励
+        if (watchingStack.length > 0) {watching += watchingStack.shift()} // 加上刷赞的观看奖励
 
         let newFollowerPrb = 1e-4 // 10分钟内涨粉概率0.70        
-        newFollowerPrb *= (1.00 + watching * 0.05) // 200热度=>1分钟内涨粉概率0.73  1000热度=>10秒内涨粉概率0.64
+        newFollowerPrb *= (1.00 + watching * 0.05) // 200观看=>1分钟内涨粉概率0.73  1000观看=>10秒内涨粉概率0.64
         if (Math.random() < newFollowerPrb) {followers++} // 触发涨粉
 
-        smashLikePrb = 1 - (1-smashLikePrb)**followers // 100粉=>1分钟内刷赞概率0.70
+        if (followers > 0) smashLikePrb = 1 - (1-smashLikePrb)**followers // 100粉=>1分钟内刷赞概率0.70
         giftPrb = 1 - (1-giftPrb)**followers // 100粉=>10分钟内送礼概率0.70
 
-        // 更新热度和粉丝数
+        // 随机变化和粉丝数变化
+        if (watching == 0 && Math.random() < 0.2) watching += Math.round(3 * Math.random())
+        if (watching >= 1 && Math.random() < 0.2) watching += Math.round(-1 + 2 * Math.random())
+        if (followers >= 1 && Math.random() < 1e-5) followers += Math.floor(-1 * Math.random())
+        // 更新观看和粉丝数
         player.setStatusMessage(Component.of([
-            {"text":"watching: ","color":"yellow"},{"text":watching,"color":"white"},
-            {"text":" Followers: ","color":"yellow"},{"text":followers,"color":"white"}
+            {"text":"Watching: ","color":"aqua", "bold": true},{"text":watching.toFixed(0),"color":"white", "bold": true},
+            {"text":"  Followers: ","color":"aqua", "bold": true},{"text":followers.toFixed(0),"color":"white", "bold": true}
         ]))
         player.persistentData.putInt("watching", watching)
         player.persistentData.putInt("followers", followers)

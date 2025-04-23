@@ -17,7 +17,7 @@ EntityEvents.hurt( event => {
     const entity = event.entity
     let sender = entity.persistentData.getString("username")
     // console.log("hurt event, sender: "+sender)
-    if (sender !== undefined) {
+    if (sender !== "") {
         let bossBar = server.getCustomBossEvents().get(sender)
         if (bossBar == null) return // 如果 bossBar 是 null 则直接结束
         let value = bossBar.getValue()
@@ -38,8 +38,9 @@ EntityEvents.death( event => {
     const level = event.level
     let sender = entity.persistentData.getString("username")
     let selfUUID = entity.getStringUuid()
-    // console.log("death event, sender: "+sender)
-    if (sender !== undefined) {
+    // console.log("death event, sender === \"\"? ")
+    // console.log(sender === "")
+    if (sender !== "") {
         let bossBar = server.getCustomBossEvents().get(sender)
         if (bossBar == null) return // 如果 bossBar 是 null 则直接结束
         let barActive = level.getEntities().toArray().some( entity => {
@@ -50,4 +51,9 @@ EntityEvents.death( event => {
         // console.log("boss条应保留吗？："+barActive)
         if (!barActive) server.runCommandSilent(`/bossbar remove minecraft:${sender}`)
     }
+    // server.getCustomBossEvents().getIds().toArray().forEach( id => {
+    //     let command = `/bossbar remove ${id}`
+    //     console.log(command)
+    //     server.runCommandSilent(command)
+    // })
 })
