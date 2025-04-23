@@ -111,14 +111,14 @@ PlayerEvents.tick( event => {
 
     function client_pack(name, sent, chat) {
         Client.gui.setTitle("")
-        Client.gui.setSubtitle(Component.of([{"text": name,"color": "red", "bold": true},{"text":"Sent ","color":"white"},{"text":sent,"color":"yellow"}]))
+        Client.gui.setSubtitle(Component.of([{"text": name,"color": "red", "bold": true},{"text":" Sent ","color":"white"},{"text":sent,"color":"yellow"}]))
         // player.setStatusMessage(Component.of([{"text":"Sent ","color":"white"},{"text":sent,"color":"yellow"}]))
-        player.displayClientMessage(Component.of([{"text": name,"color": "red"},{"text":" Sent ","color":"white"},{"text":chat,"color":"yellow"}]), false)
+        player.displayClientMessage(Component.of([{"text": name,"color": "red"},{"text":` Sent ${chat}!`,"color":"white"},{"text":` (${sent})`,"color":"yellow", "bold": true}]), false)
     }
 
-    function bossbar(username, sent, max) {
+    function bossbar(username, max) {
         let id = username.toLowerCase()
-        server.customBossEvents.create(id, Component.of({"text":sent,"color":"yellow", "bold": true}))
+        server.customBossEvents.create(id, Component.of({"text":username,"color":"yellow", "bold": true}))
         let bar = server.customBossEvents.get(id)
         bar.setColor("red")
         bar.setOverlay("progress")
@@ -177,7 +177,7 @@ PlayerEvents.tick( event => {
         var name = genName()
         if (roll > 0.2) { // 200赞事件-猪灵x2
             client_pack(name, "2x Piglin", "200 likes")
-            bossbar(name, "2x Piglin", 2*16)
+            bossbar(name, 2*16)
             spawnMobStack.push({count: 2,
                 id: "piglin", pos: [mobX, player.getZ()+12.0], name: name, color: "red", username: name.toLowerCase(), 
                 handItem: "crossbow", extraNbt: {IsImmuneToZombification: true},
