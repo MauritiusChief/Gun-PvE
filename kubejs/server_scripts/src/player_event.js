@@ -5,12 +5,13 @@
  * /kubejs persistent_data entity @s merge {spawn_highway:true}
  * /kubejs persistent_data entity @s merge {spawn_mobs:true}
  * /kubejs persistent_data entity @s merge {spawn_mobs:false}
+ * /kubejs persistent_data entity @s merge {stream_envo:true}
  * 
- * /kubejs persistent_data entity @s merge {follower:0}
- * /kubejs persistent_data entity @s merge {likes:0}
+ * /kubejs persistent_data entity @s merge {followers:0}
+ * /kubejs persistent_data entity @s merge {watching:0}
  */
 
-var spawnMobTimer = {
+let spawnMobTimer = {
     "creeper":          20*10 + Math.ceil(20 * 10  * (0.75+0.5*Math.random())),
     "piglin":           20*10 + Math.ceil(20 * 20  * (0.5+1.0*Math.random())),
     "skeleton":         20*10 + Math.ceil(20 * 60  * (0.5+1.0*Math.random())),
@@ -22,9 +23,10 @@ var spawnMobTimer = {
     "elder_guardian":   20*10 + Math.ceil(20 * 60 * 30 * (0.25+1.5*Math.random())),
     "warden":           20*10 + Math.ceil(20 * 60 * 60 * (0.25+1.5*Math.random())),
 }
-var spawnMobStack = []
-var goldStack = []
-var commentRash = false
+let spawnMobStack = [] // 包含所有已加入队列的生成任务
+let watchingStack = [] // 生成怪物时伴随的增加热度奖励
+let goldStack = [] // 生成怪物时伴随的金币奖励
+let commentRash = false
 
 PlayerEvents.tick( event => {
     const player = event.player
@@ -35,6 +37,7 @@ PlayerEvents.tick( event => {
     let player_x_double = player.getX();
     let spawnHighway = player.persistentData.getBoolean("spawn_highway")
     let spawnMobs = player.persistentData.getBoolean("spawn_mobs")
+    let streamEnvo = player.persistentData.getBoolean("stream_envo")
 
     /* 生成地图部分 */
     function decideTemplate() {
@@ -78,10 +81,15 @@ PlayerEvents.tick( event => {
     function summon_mob(task) {
         // console.log(task)
         let mob = level.createEntity(`minecraft:${task.id}`)
-        mob.setCustomName(Component.of({"text": task.name, "color": task.color, "bold": true}))
+        // console.log("name & color")
+        // console.log(task.name !== undefined && task.color !== undefined)
+        // console.log("username")
+        // console.log(task.username !== undefined)
+        if (task.name !== undefined && task.color !== undefined) mob.setCustomName(Component.of({"text": task.name, "color": task.color, "bold": true}))
+        if (task.username !== undefined) mob.persistentData.putString("username", task.username)
         mob.setCustomNameVisible(true)
-        if (task.handItem !== null) { mob.mergeNbt({HandItems:[{id: task.handItem, Count: 1},{}]}) }
-        if (task.extraNbt !== null) { mob.mergeNbt(task.extraNbt) }
+        if (task.handItem !== undefined) { mob.mergeNbt({HandItems:[{id: task.handItem, Count: 1},{}]}) }
+        if (task.extraNbt !== undefined) { mob.mergeNbt(task.extraNbt) }
         // console.log(task.multi > 1)
         if (task.multi > 1) {
             let multi = task.multi;
@@ -98,18 +106,55 @@ PlayerEvents.tick( event => {
         // mob.setRotation(test.x, test.y)
         mob.spawn();
         server.runCommandSilent(`/team join Mob ${mob.getStringUuid()}`)
+        if (task.effect !== undefined) {server.runCommandSilent(`effect give ${mob.getStringUuid()} ${task.effect} infinite 0 true`)}
     }
 
-    function client_pack(name, sent) {
+    function client_pack(name, sent, chat) {
         Client.gui.setTitle("")
-        Client.gui.setSubtitle(Component.of({"text": name,"color": "red", "bold": true}))
-        player.setStatusMessage(Component.of([{"text":"Sent ","color":"white"},{"text":sent,"color":"yellow"}]))
-        player.displayClientMessage(Component.of([{"text": name,"color": "red"},{"text":" Sent ","color":"white"},{"text":sent,"color":"yellow"}]), false)
+        Client.gui.setSubtitle(Component.of([{"text": name,"color": "red", "bold": true},{"text":"Sent ","color":"white"},{"text":sent,"color":"yellow"}]))
+        // player.setStatusMessage(Component.of([{"text":"Sent ","color":"white"},{"text":sent,"color":"yellow"}]))
+        player.displayClientMessage(Component.of([{"text": name,"color": "red"},{"text":" Sent ","color":"white"},{"text":chat,"color":"yellow"}]), false)
+    }
+
+    function bossbar(username, sent, max) {
+        let id = username.toLowerCase()
+        server.customBossEvents.create(id, Component.of({"text":sent,"color":"yellow", "bold": true}))
+        let bar = server.customBossEvents.get(id)
+        bar.setColor("red")
+        bar.setOverlay("progress")
+        bar.setMax(max)
+        bar.setValue(max)
+        bar.setPlayers(server.players)
+    }
+
+    /* 直播模拟 */
+    let smashLikePrb = 1e-5 // 单个粉丝刷赞概率
+    let giftPrb = 1e-6 // 单个粉丝送礼概率
+    if (streamEnvo) {
+        let watching = player.persistentData.getInt("watching")
+        let followers = player.persistentData.getInt("followers")
+
+        if (watchingStack.length > 0) {watching += watchingStack.shift()} // 加上刷赞的热度奖励
+
+        let newFollowerPrb = 1e-4 // 10分钟内涨粉概率0.70        
+        newFollowerPrb *= (1.00 + watching * 0.05) // 200热度=>1分钟内涨粉概率0.73  1000热度=>10秒内涨粉概率0.64
+        if (Math.random() < newFollowerPrb) {followers++} // 触发涨粉
+
+        smashLikePrb = 1 - (1-smashLikePrb)**followers // 100粉=>1分钟内刷赞概率0.70
+        giftPrb = 1 - (1-giftPrb)**followers // 100粉=>10分钟内送礼概率0.70
+
+        // 更新热度和粉丝数
+        player.setStatusMessage(Component.of([
+            {"text":"watching: ","color":"yellow"},{"text":watching,"color":"white"},
+            {"text":" Followers: ","color":"yellow"},{"text":followers,"color":"white"}
+        ]))
+        player.persistentData.putInt("watching", watching)
+        player.persistentData.putInt("followers", followers)
     }
 
     /* 生成怪物部分 */
+    let mobX = 1.5
     if (spawnMobs) {
-        var mobX = 1.5
         if (player_x_double < 3.5) {
             mobX = 1.5
         } else if (player_x_double < 7.5) {
@@ -123,8 +168,34 @@ PlayerEvents.tick( event => {
         } else {
             mobX = 22.5
         }
+    }
+    // smashLikePrb = 0.01
+    if (spawnMobs && Math.random() < smashLikePrb) { // 刷赞的怪物生成事件
+        // console.log("smashLikePrb: "+smashLikePrb)
         // event.server.tell("计时器触发")
-
+        var roll = Math.random()
+        var name = genName()
+        if (roll > 0.2) { // 200赞事件-猪灵x2
+            client_pack(name, "2x Piglin", "200 likes")
+            bossbar(name, "2x Piglin", 2*16)
+            spawnMobStack.push({count: 2,
+                id: "piglin", pos: [mobX, player.getZ()+12.0], name: name, color: "red", username: name.toLowerCase(), 
+                handItem: "crossbow", extraNbt: {IsImmuneToZombification: true},
+            })
+            watchingStack.push(Math.ceil(2.00 * Math.random()))
+        } else { // 1000赞事件-闪电苦力怕x3
+            client_pack(name, "3x Charged Creeper", "1000 likes")
+            spawnMobStack.push({count: 3,
+                id: "creeper", pos: [mobX, player.getZ()+8.0], name: name, color: "red"
+            })
+            spawnMobStack.push({count: 1, 
+                id: "lightning_bolt", pos: [mobX, player.getZ()+8.0]
+            })
+            watchingStack.push(Math.ceil(10.00 * Math.random()))
+        }
+    }
+    giftPrb = 0 // 暂时禁止送礼事件
+    if (spawnMobs && Math.random() < giftPrb) { // 送礼的怪物生成事件
         if (spawnMobTimer["creeper"] == 0) { // 聊天消息
             let msg = genMsg()
             spawnMobStack.push({count: 1,
@@ -223,7 +294,7 @@ PlayerEvents.tick( event => {
             let name = genName()
             client_pack(name, "25x Elder Guardian")
             spawnMobStack.push({count: 25,
-                id: "elder_guardian", pos: [mobX, player.getZ()+16.0], name: name, color: "red"
+                id: "elder_guardian", pos: [mobX, player.getZ()+16.0], name: name, color: "red", effect: "water_breathing"
             })
             spawnMobTimer["elder_guardian"] = Math.ceil(20 * 600 * (0.25+1.5*Math.random()))
         } else {
@@ -242,17 +313,16 @@ PlayerEvents.tick( event => {
             // event.server.tell("warden: "+spawnMobTimer["warden"])
             spawnMobTimer["warden"]--;
         }
-
+    }
+    // console.log(spawnMobStack)
+    if (spawnMobStack.length > 0) {
         // console.log(spawnMobStack)
-        if (spawnMobStack.length > 0) {
-            // console.log(spawnMobStack)
-            let spawnTask = spawnMobStack[0]
-            if (spawnTask.count > 0) {
-                summon_mob(spawnTask);
-                spawnTask.count--;
-            } else {
-                spawnMobStack.shift()
-            }
+        let spawnTask = spawnMobStack[0]
+        if (spawnTask.count > 0) {
+            summon_mob(spawnTask);
+            spawnTask.count--;
+        } else {
+            spawnMobStack.shift()
         }
     }
 
@@ -269,7 +339,7 @@ function genName() {
 }
   
 function genMsg() {
-    const messages = ['hello','how are you','can you see me?','omg','lol','uwu','abc','nice!','no way!','that’s good','good','huh','hahahahahaha','hahahahaha','hahahaha','pog','gg','cool!','so cool','that’s cool','what happened?','any one watching?','who else is watching this?','🔥🔥🔥🔥🔥','🔥🔥🔥','gooooo','let’s gooo','let’s go','bruh','same here','😂😂😂','😂😂','that was crazy','that’s crazy','this is wild','wild'];
+    const messages = ['hi','hiii','hii','hello','how are you','can you see me?','omg','lol','uwu','abc','nice','no way','that’s good','good','boo','huh','hahahahahaha','hahahahaha','hahahaha','pog','gg','cool','so cool','thats cool','that’s cool','what happened?','any one watching?','who else is watching?','🔥🔥🔥🔥🔥','🔥🔥🔥','gooooo','let’s gooo','let’s go','bruh','dude','same here','what’s up','whats up','😂😂😂','😂😂','that was crazy','that is crazy','thats crazy','that’s crazy','this is wild','wild'];
     let roll = Math.random();
     // 20% chance: return a single random letter
     if (roll < 0.2) {
