@@ -39,7 +39,7 @@ EntityEvents.death( event => {
     let sender = entity.persistentData.getString("username")
     let selfUUID = entity.getStringUuid()
     // console.log("death event, sender: "+sender)
-    if (sender) {
+    if (sender !== undefined) {
         let bossBar = server.getCustomBossEvents().get(sender)
         if (bossBar == null) return // 如果 bossBar 是 null 则直接结束
         let barActive = level.getEntities().toArray().some( entity => {
