@@ -181,8 +181,17 @@ PlayerEvents.tick( event => {
         if (followers > 0) giftPrb = 1 - (1-giftPrb)**followers // 100粉=>10分钟内送礼概率0.70
 
         // 随机变化和粉丝数变化
-        if (watching == 0 && Math.random() < 0.2) watching += Math.round(3 * Math.random())
-        if (watching >= 1 && Math.random() < 0.2) watching += Math.round(-1 + 1.5 * Math.random())
+        if (Math.random() < 0.2) {
+            if (watching >= 50) {
+                watching += Math.round(-1 + 1.5 * Math.random())
+            } else if (watching >= 20) {
+                watching += Math.round(-1 + 1.8 * Math.random())
+            } else if (watching >= 1) {
+                watching += Math.round(-1 + 2 * Math.random())
+            } else {
+                watching += Math.round(3 * Math.random())
+            }
+        }
         if (followers >= 1 && Math.random() < 5e-5) followers += Math.floor(-1 * Math.random())
         // 更新观看和粉丝数
         player.setStatusMessage(Component.of([
@@ -216,7 +225,7 @@ PlayerEvents.tick( event => {
         if (commentRash) { // 1秒内出现评论概率0.64
             if (Math.random() < 0.05) commentStack.push({count: 1,id: "creeper", name: msg, color: "yellow"})
         } else { // 5秒内出现评论概率0.63
-            if (Math.random() < 0.01) commentStack.push({count: 1,id: "creeper", name: msg, color: "yellow"})
+            if (Math.random() < 0.005) commentStack.push({count: 1,id: "creeper", name: msg, color: "yellow"})
         }
         // 倒计时到了就把 comment 都转移到 spawnMobStack
         if (commentTicker >= 20) {
@@ -227,15 +236,20 @@ PlayerEvents.tick( event => {
                 spawnMobStack.push(comment)
             })
             // 每次触发评论时，都有概率更新commentRash状态 
-            if (!commentRash && Math.random() < watchForComm / (watchForComm+50) - 0.1) {
+            if (!commentRash && (
+                    (watchForComm <= 50 && Math.random() < 0.01*watchForComm + 0.2) || 
+                    (watchForComm > 50 && Math.random() < 0.7)
+                )
+            ) {
                 commentRash = true // 进入 commentRash
             }
-            if (commentRash && Math.random() < 5 / watchForComm + 0.1) {
+            if (commentRash && Math.random() < 0.2) {
                 commentRash = false // 退出 commentRash
             }
             commentTicker = 0 // 重置倒计时
         }
     } 
+    // newFollowerPrb = 0.01
     if (spawnMobs && Math.random() < newFollowerPrb) { // 模拟涨粉
         let followIncre = player.persistentData.getInt("followers")
         var name = genName()
