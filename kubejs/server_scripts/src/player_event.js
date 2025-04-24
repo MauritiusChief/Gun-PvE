@@ -223,18 +223,21 @@ PlayerEvents.tick( event => {
         commentTicker++
         let msg = genMsg()
         if (commentRash) { // 1秒内出现评论概率0.64
-            if (Math.random() < 0.05) commentStack.push({count: 1,id: "creeper", name: msg, color: "yellow"})
+            if (Math.random() < 0.05) commentStack.push({count: 1, id: "creeper", name: msg, color: "yellow"})
         } else { // 5秒内出现评论概率0.63
-            if (Math.random() < 0.005) commentStack.push({count: 1,id: "creeper", name: msg, color: "yellow"})
+            if (Math.random() < 0.005) commentStack.push({count: 1, id: "creeper", name: msg, color: "yellow"})
         }
         // 倒计时到了就把 comment 都转移到 spawnMobStack
         if (commentTicker >= 20) {
             let watchForComm = player.persistentData.getInt("watching") // 获取观看数据
             watchForComm == 0 ? 1 :  watchForComm // 防止为0时的问题
+            // console.log("[🟢]生成队列中目前还有 "+spawnMobStack.length+" 项：")
+            // console.log(spawnMobStack)
             commentStack.forEach(comment => {
                 comment.pos = [mobX, player.getZ()+12.0]
                 spawnMobStack.push(comment)
             })
+            commentStack = [] // 重置 commentStack
             // 每次触发评论时，都有概率更新commentRash状态 
             if (!commentRash && (
                     (watchForComm <= 50 && Math.random() < 0.01*watchForComm + 0.2) || 
@@ -258,6 +261,8 @@ PlayerEvents.tick( event => {
             id: "piglin", pos: [mobX, player.getZ()+12.0], name: name, color: "red", username: name.toLowerCase(), 
             handItem: "crossbow", extraNbt: {IsImmuneToZombification: true},
         })
+        // console.log("[🔺]触发涨粉")
+        // console.log(spawnMobStack)
         followIncre++
         player.persistentData.putInt("followers", followIncre)
     }
@@ -404,13 +409,23 @@ PlayerEvents.tick( event => {
     }
     // console.log(spawnMobStack)
     if (spawnMobStack.length > 0) {
+        // while (spawnMobStack.length > 0 && spawnMobStack[0].count <= 0) {
+        //     console.log("[⬜]移除 count 为 0 的项");
+        //     spawnMobStack.shift();
+        // }
         // console.log(spawnMobStack)
         let spawnTask = spawnMobStack[0]
+        // if (spawnTask.id == "piglin") {console.log("[🔴]检测到生成猪灵"); console.log(spawnMobStack)}
         if (spawnTask.count > 0) {
             summon_mob(spawnTask);
             spawnTask.count--;
-        } else {
-            spawnMobStack.shift()
+        }
+        if (spawnTask.count <= 0) {
+            // console.log("[⬜]队列长度"+spawnMobStack.length)
+            let removed = spawnMobStack.shift()
+            // console.log("已移除")
+            // console.log(removed)
+            // console.log("[⬜]移除后队列长度"+spawnMobStack.length)
         }
     }
     if (goldPile > 0) {
