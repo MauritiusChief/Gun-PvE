@@ -223,7 +223,7 @@ PlayerEvents.tick( event => {
         commentTicker++
         let msg = genMsg()
         if (commentRash) { // 1秒内出现评论概率0.64
-            if (Math.random() < 0.05) commentStack.push({count: 1, id: "creeper", name: msg, color: "yellow"})
+            if (Math.random() < 0.03) commentStack.push({count: 1, id: "creeper", name: msg, color: "yellow"})
         } else { // 5秒内出现评论概率0.63
             if (Math.random() < 0.005) commentStack.push({count: 1, id: "creeper", name: msg, color: "yellow"})
         }
@@ -245,9 +245,11 @@ PlayerEvents.tick( event => {
                 )
             ) {
                 commentRash = true // 进入 commentRash
+                // server.tell("[DEBUG] 进入 commentRash")
             }
-            if (commentRash && Math.random() < 0.2) {
+            if (commentRash && Math.random() < 0.4) {
                 commentRash = false // 退出 commentRash
+                // server.tell("[DEBUG] 退出 commentRash")
             }
             commentTicker = 0 // 重置倒计时
         }
