@@ -26,6 +26,8 @@ let spawnMobTimer = {
 let spawnMobStack = [] // 包含所有已加入队列的生成任务
 let watchingStack = [] // 生成怪物时伴随的增加观看奖励
 let goldStack = [] // 生成怪物时伴随的金币奖励
+let commentTicker = 0 // 倒计时到达20时，将 commentStack 加入 spawnMobStack，模拟限制评论频率的功能
+let commentStack = []
 let commentRash = false
 
 PlayerEvents.tick( event => {
@@ -173,7 +175,31 @@ PlayerEvents.tick( event => {
             mobX = 22.5
         }
     }
-    // smashLikePrb = 0.01
+    if (spawnMobs) { // 评论模拟部分
+        commentTicker++
+        let msg = genMsg()
+        if (commentRash) { // 1秒内出现评论概率0.88
+            if (Math.random() < 0.1) commentStack.push({count: 1,id: "creeper", name: msg, color: "yellow"})
+        } else { // 10秒内出现评论概率0.87
+            if (Math.random() < 0.01) commentStack.push({count: 1,id: "creeper", name: msg, color: "yellow"})
+        }
+        // 倒计时到了就把 comment 都转移到 spawnMobStack
+        if (commentTicker >= 20) {
+            commentStack.forEach(comment => {
+                comment.pos = [mobX, player.getZ()+12.0]
+                spawnMobStack.push(comment)
+            })
+            // 每次触发评论时，都有概率更新commentRash状态 
+            if (!commentRash && Math.random() < 0.3) {
+                commentRash = true
+            }
+            if (commentRash && Math.random() < 0.2) {
+                commentRash = false
+            }
+            commentTicker = 0 // 重置倒计时
+        }
+    } 
+    // smashLikePrb = 0.1
     if (spawnMobs && Math.random() < smashLikePrb) { // 刷赞的怪物生成事件
         // console.log("smashLikePrb: "+smashLikePrb)
         // event.server.tell("计时器触发")
@@ -198,30 +224,8 @@ PlayerEvents.tick( event => {
             watchingStack.push(Math.ceil(10.00 * Math.random()))
         }
     }
-    giftPrb = 0 // 暂时禁止送礼事件
+    // giftPrb = 0 // 暂时禁止送礼事件
     if (spawnMobs && Math.random() < giftPrb) { // 送礼的怪物生成事件
-        if (spawnMobTimer["creeper"] == 0) { // 聊天消息
-            let msg = genMsg()
-            spawnMobStack.push({count: 1,
-                id: "creeper", pos: [mobX, player.getZ()+12.0], name: msg, color: "yellow"
-            })
-            if (commentRash) {
-                spawnMobTimer["creeper"] = Math.ceil(20 * 1 * (0.25+1.5*Math.random()))
-            } else {
-                spawnMobTimer["creeper"] = Math.ceil(20 * 10 * (0.75+0.5*Math.random()))
-            }
-            // 每次触发评论时，都有概率更新commentRash状态 
-            if (!commentRash && Math.random() < 0.3) {
-                commentRash = true
-            }
-            if (commentRash && Math.random() < 0.2) {
-                commentRash = false
-            }
-        } else {
-            // event.server.tell("creeper: "+spawnMobTimer["creeper"])
-            spawnMobTimer["creeper"]--;
-        }
-
         if (spawnMobTimer["piglin"] == 0) {
             let name = genName()
             client_pack(name, "2x Piglin")
@@ -231,7 +235,7 @@ PlayerEvents.tick( event => {
             spawnMobTimer["piglin"] = Math.ceil(20 * 30 * (0.5+1.0*Math.random()))
         } else {
             // event.server.tell("piglin: "+spawnMobTimer["piglin"])
-            spawnMobTimer["piglin"]--;
+            // spawnMobTimer["piglin"]--;
         }
 
         if (spawnMobTimer["skeleton"] == 0) {
@@ -243,7 +247,7 @@ PlayerEvents.tick( event => {
             spawnMobTimer["skeleton"] = Math.ceil(20 * 60 * (0.5+1.0*Math.random()))
         } else {
             // event.server.tell("skeleton: "+spawnMobTimer["skeleton"])
-            spawnMobTimer["skeleton"]--;
+            // spawnMobTimer["skeleton"]--;
         }
 
         if (spawnMobTimer["ravager"] == 0) {
@@ -255,7 +259,7 @@ PlayerEvents.tick( event => {
             spawnMobTimer["ravager"] = Math.ceil(20 * 120 * (0.5+1.0*Math.random()))
         } else {
             // event.server.tell("ravager: "+spawnMobTimer["ravager"])
-            spawnMobTimer["ravager"]--;
+            // spawnMobTimer["ravager"]--;
         }
 
         if (spawnMobTimer["pillager"] == 0) {
@@ -267,7 +271,7 @@ PlayerEvents.tick( event => {
             spawnMobTimer["pillager"] = Math.ceil(20 * 300 * (0.25+1.5*Math.random()))
         } else {
             // event.server.tell("pillager: "+spawnMobTimer["pillager"])
-            spawnMobTimer["pillager"]--;
+            // spawnMobTimer["pillager"]--;
         }
 
         if (spawnMobTimer["wither_skeleton"] == 0) {
@@ -279,7 +283,7 @@ PlayerEvents.tick( event => {
             spawnMobTimer["wither_skeleton"] = Math.ceil(20 * 600 * (0.25+1.5*Math.random()))
         } else {
             // event.server.tell("wither_skeleton: "+spawnMobTimer["wither_skeleton"])
-            spawnMobTimer["wither_skeleton"]--;
+            // spawnMobTimer["wither_skeleton"]--;
         }
 
         if (spawnMobTimer["zombie"] == 0) {
@@ -291,7 +295,7 @@ PlayerEvents.tick( event => {
             spawnMobTimer["zombie"] = Math.ceil(20 * 600 * (0.25+1.5*Math.random()))
         } else {
             // event.server.tell("zombie: "+spawnMobTimer["zombie"])
-            spawnMobTimer["zombie"]--;
+            // spawnMobTimer["zombie"]--;
         }
 
         if (spawnMobTimer["elder_guardian"] == 0) {
@@ -303,7 +307,7 @@ PlayerEvents.tick( event => {
             spawnMobTimer["elder_guardian"] = Math.ceil(20 * 600 * (0.25+1.5*Math.random()))
         } else {
             // event.server.tell("elder_guardian: "+spawnMobTimer["elder_guardian"])
-            spawnMobTimer["elder_guardian"]--;
+            // spawnMobTimer["elder_guardian"]--;
         }
 
         if (spawnMobTimer["warden"] == 0) {
@@ -315,7 +319,7 @@ PlayerEvents.tick( event => {
             spawnMobTimer["warden"] = Math.ceil(20 * 600 * (0.25+1.5*Math.random()))
         } else {
             // event.server.tell("warden: "+spawnMobTimer["warden"])
-            spawnMobTimer["warden"]--;
+            // spawnMobTimer["warden"]--;
         }
     }
     // console.log(spawnMobStack)
@@ -327,6 +331,15 @@ PlayerEvents.tick( event => {
             spawnTask.count--;
         } else {
             spawnMobStack.shift()
+        }
+    }
+    if (goldStack.length > 0) {
+        let goldPile = goldStack[0]
+        if (goldPile.count > 0) {
+            player.give("kubejs:coin")
+            goldPile.count--;
+        } else {
+            goldStack.shift()
         }
     }
 
