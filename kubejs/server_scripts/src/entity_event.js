@@ -23,7 +23,7 @@ EntityEvents.hurt( event => {
         let value = bossBar.getValue()
         // console.log("boss条："+value+"  伤害："+damage)
         if (value > damage) {
-            bossBar.setValue(Math.round(value - damage))
+            bossBar.setValue(Math.ceil(value - damage))
         } else {
             bossBar.setValue(0)
         }

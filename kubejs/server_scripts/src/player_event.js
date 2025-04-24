@@ -197,25 +197,27 @@ PlayerEvents.tick( event => {
         }
     }
     if (spawnMobs) { // 评论模拟部分
-        // commentTicker++
+        commentTicker++
         let msg = genMsg()
-        if (commentRash) { // 1秒内出现评论概率0.88
-            if (Math.random() < 0.1) commentStack.push({count: 1,id: "creeper", name: msg, color: "yellow"})
-        } else { // 10秒内出现评论概率0.87
+        if (commentRash) { // 1秒内出现评论概率0.64
+            if (Math.random() < 0.05) commentStack.push({count: 1,id: "creeper", name: msg, color: "yellow"})
+        } else { // 5秒内出现评论概率0.63
             if (Math.random() < 0.01) commentStack.push({count: 1,id: "creeper", name: msg, color: "yellow"})
         }
         // 倒计时到了就把 comment 都转移到 spawnMobStack
         if (commentTicker >= 20) {
+            let watchForComm = player.persistentData.getInt("watching") // 获取观看数据
+            watchForComm == 0 ? 1 :  watchForComm // 防止为0时的问题
             commentStack.forEach(comment => {
                 comment.pos = [mobX, player.getZ()+12.0]
                 spawnMobStack.push(comment)
             })
             // 每次触发评论时，都有概率更新commentRash状态 
-            if (!commentRash && Math.random() < 0.3) {
-                commentRash = true
+            if (!commentRash && Math.random() < watchForComm / (watchForComm+50) - 0.1) {
+                commentRash = true // 进入 commentRash
             }
-            if (commentRash && Math.random() < 0.2) {
-                commentRash = false
+            if (commentRash && Math.random() < 5 / watchForComm + 0.1) {
+                commentRash = false // 退出 commentRash
             }
             commentTicker = 0 // 重置倒计时
         }
@@ -244,7 +246,7 @@ PlayerEvents.tick( event => {
             watchingStack.push(Math.ceil(10.00 * Math.random()))
         }
     }
-    // giftPrb = 0.05
+    // giftPrb = 0.01
     const giftDict = [
         {value: "piglin",           weight: 60},
         {value: "creeper",          weight: 15},
@@ -374,6 +376,7 @@ PlayerEvents.tick( event => {
         }
     }
     if (goldPile > 0) {
+        level.playSound(null, player.x, player.y, player.z, 'entity.experience_orb.pickup', 'ambient', 0.5, 0.75+0.1*Math.random())
         player.give('thermal:gold_coin')
         goldPile--;
     }
