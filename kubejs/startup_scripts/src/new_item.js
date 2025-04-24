@@ -4,6 +4,6 @@
 
 // console.info('Hello, World! (Loaded startup scripts)')
 
-StartupEvents.registry("item", event => {
-    event.create("coin")
-})
+// StartupEvents.registry("item", event => {
+//     event.create("coin")
+// })

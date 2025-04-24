@@ -336,7 +336,7 @@ PlayerEvents.tick( event => {
     if (goldStack.length > 0) {
         let goldPile = goldStack[0]
         if (goldPile.count > 0) {
-            player.give("kubejs:coin")
+            player.give('thermal:gold_coin')
             goldPile.count--;
         } else {
             goldStack.shift()
