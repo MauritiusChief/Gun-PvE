@@ -126,7 +126,13 @@ PlayerEvents.tick( event => {
             mob.startRiding(carrier)
         }
         server.runCommandSilent(`/team join Mob ${mob.getStringUuid()}`)
-        if (task.effect !== undefined) {server.runCommandSilent(`/effect give ${mob.getStringUuid()} ${task.effect} infinite 0 true`)}
+        if (task.effects !== undefined) {
+            let effects = task.effects
+            effects.forEach( effect => {
+                // console.log(effect)
+                server.runCommandSilent(`/effect give ${mob.getStringUuid()} ${effect.id} ${effect.t} ${effect.lv} true`)
+            })
+        }
     }
 
     /**
@@ -161,18 +167,17 @@ PlayerEvents.tick( event => {
     /* 直播模拟 */
     let smashLikePrb = 1e-5 // 单个粉丝刷赞概率
     let giftPrb = 1e-6 // 单个粉丝送礼概率
+    let newFollowerPrb = 1e-4 // 10分钟内涨粉概率0.70   
     if (streamEnvo) {
         let watching = player.persistentData.getInt("watching")
         let followers = player.persistentData.getInt("followers")
 
         if (watchingStack.length > 0) {watching += watchingStack.shift()} // 加上刷赞的观看奖励
 
-        let newFollowerPrb = 1e-4 // 10分钟内涨粉概率0.70        
         newFollowerPrb *= (1.00 + watching * 0.05) // 200观看=>1分钟内涨粉概率0.73  1000观看=>10秒内涨粉概率0.64
-        if (Math.random() < newFollowerPrb) {followers++} // 触发涨粉
 
         if (followers > 0) smashLikePrb = 1 - (1-smashLikePrb)**followers // 100粉=>1分钟内刷赞概率0.70
-        giftPrb = 1 - (1-giftPrb)**followers // 100粉=>10分钟内送礼概率0.70
+        if (followers > 0) giftPrb = 1 - (1-giftPrb)**followers // 100粉=>10分钟内送礼概率0.70
 
         // 随机变化和粉丝数变化
         if (watching == 0 && Math.random() < 0.2) watching += Math.round(3 * Math.random())
@@ -230,14 +235,24 @@ PlayerEvents.tick( event => {
             commentTicker = 0 // 重置倒计时
         }
     } 
-    // smashLikePrb = 0.1
+    if (spawnMobs && Math.random() < newFollowerPrb) { // 模拟涨粉
+        let followIncre = player.persistentData.getInt("followers")
+        var name = genName()
+        client_pack(name, "2x Piglin", "a follow")
+        spawnMobStack.push({count: 2,
+            id: "piglin", pos: [mobX, player.getZ()+12.0], name: name, color: "red", username: name.toLowerCase(), 
+            handItem: "crossbow", extraNbt: {IsImmuneToZombification: true},
+        })
+        followIncre++
+        player.persistentData.putInt("followers", followIncre)
+    }
+    // smashLikePrb = 0.01
     if (spawnMobs && Math.random() < smashLikePrb) { // 刷赞的怪物生成事件
         // console.log("smashLikePrb: "+smashLikePrb)
         // event.server.tell("计时器触发")
         var name = genName()
         if (Math.random() > 0.2) { // 200赞事件-猪灵x2
             client_pack(name, "2x Piglin", "200 likes")
-            bossbar(name, 2*16)
             spawnMobStack.push({count: 2,
                 id: "piglin", pos: [mobX, player.getZ()+12.0], name: name, color: "red", username: name.toLowerCase(), 
                 handItem: "crossbow", extraNbt: {IsImmuneToZombification: true},
@@ -246,7 +261,8 @@ PlayerEvents.tick( event => {
         } else { // 1000赞事件-闪电苦力怕x3
             client_pack(name, "3x Charged Creeper", "1000 likes")
             spawnMobStack.push({count: 3,
-                id: "creeper", pos: [mobX, player.getZ()+8.0], name: name, color: "red"
+                id: "creeper", pos: [mobX, player.getZ()+8.0], name: name, color: "red", 
+                effects: [{id: "resistance", lv: "5", t: "5"}, {id: "fire_resistance", lv: "1", t: "infinite"}]
             })
             spawnMobStack.push({count: 1, 
                 id: "lightning_bolt", pos: [mobX, player.getZ()+8.0]
@@ -271,7 +287,6 @@ PlayerEvents.tick( event => {
         switch (wrad(giftDict)) {
             case "piglin": // 猪灵x2 - 虞美人1g
                 client_pack(name, "2x Piglin", "Poppy")
-                bossbar(name, 2*16)
                 spawnMobStack.push({count: 2,
                     id: "piglin", pos: [mobX, player.getZ()+12.0], name: name, color: "red", username: name.toLowerCase(), 
                     handItem: "crossbow", extraNbt: {IsImmuneToZombification: true},
@@ -280,9 +295,9 @@ PlayerEvents.tick( event => {
                 break
             case "creeper": // 闪电苦力怕x3 - 玫瑰5g
                 client_pack(name, "3x Charged Creeper", "Rose")
-                bossbar(name, 3*20)
                 spawnMobStack.push({count: 3,
-                    id: "creeper", pos: [mobX, player.getZ()+8.0], name: name, color: "red", username: name.toLowerCase(),
+                    id: "creeper", pos: [mobX, player.getZ()+8.0], name: name, color: "red", 
+                    effects: [{id: "resistance", lv: "5", t: "5"}, {id: "fire_resistance", lv: "1", t: "infinite"}]
                 })
                 spawnMobStack.push({count: 1, 
                     id: "lightning_bolt", pos: [mobX, player.getZ()+8.0]
