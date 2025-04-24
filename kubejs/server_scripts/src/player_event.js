@@ -129,8 +129,9 @@ PlayerEvents.tick( event => {
         if (task.effects !== undefined) {
             let effects = task.effects
             effects.forEach( effect => {
-                // console.log(effect)
-                server.runCommandSilent(`/effect give ${mob.getStringUuid()} ${effect.id} ${effect.t} ${effect.lv} true`)
+                let command = `/effect give ${mob.getStringUuid()} ${effect.id} ${effect.t} ${effect.lv} true`
+                // console.log(command)
+                server.runCommandSilent(command)
             })
         }
     }

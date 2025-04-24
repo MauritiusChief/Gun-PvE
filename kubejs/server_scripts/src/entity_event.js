@@ -2,6 +2,7 @@
 EntityEvents.hurt( event => {
     const damage = event.damage
     const server = event.server
+    const source = event.source
 
     /* 受伤实体是玩家 */
     if (event.entity.isPlayer()) {
@@ -12,18 +13,40 @@ EntityEvents.hurt( event => {
         return
     }
 
-    /* 否则便是普通实体 */
+    /* 否则受伤的便是普通实体 */
+    const entity = event.entity
+    // 针对性内容：枪伤会点燃闪电苦力怕
+    // console.log(source.type().msgId())
+    // console.log(entity.type)
+    // console.log(entity.getNbt().powered)
+    if (entity.isLiving() && entity.type == "minecraft:creeper" && entity.getNbt().powered == 1) {
+        // console.log("检测到闪电苦力怕受伤")
+        let sourceType = source.type().msgId()
+        let shouldImmu = ["inFire", "onFire", "lightningBolt", "explosion.player"]
+        // console.log(sourceType)
+        // console.log(shouldImmu.includes(sourceType))
+        if (shouldImmu.includes(sourceType)) {
+            event.cancel()
+            return
+        } // 闪电苦力怕免疫闪电伤害
+        console.log("进入点燃程序")
+        let nbt = entity.getNbt()
+        nbt.powered = 0
+        nbt.ignited = true
+        nbt.Fuse = 1
+        entity.mergeNbt(nbt)
+        entity.potionEffects.clear()
+    }
 
     // 观看数相关内容
-    if (event.source.actual.isPlayer()) {
-        const player = event.source.actual
+    if (source.actual && event.entity.isLiving() && source.actual.isPlayer()) {
+        const player = source.actual
         let watching = player.persistentData.getInt("watching")
         if (Math.random() < damage / (damage+5)) watching++
         player.persistentData.putInt("watching", watching)
         // 不 return，继续执行boss条相关内容
     }
     // boss条相关内容
-    const entity = event.entity
     let sender = entity.persistentData.getString("username")
     // console.log("hurt event, sender: "+sender)
     if (sender !== "") {
