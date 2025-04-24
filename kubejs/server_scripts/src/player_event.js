@@ -126,7 +126,7 @@ PlayerEvents.tick( event => {
             mob.startRiding(carrier)
         }
         server.runCommandSilent(`/team join Mob ${mob.getStringUuid()}`)
-        if (task.effect !== undefined) {server.runCommandSilent(`effect give ${mob.getStringUuid()} ${task.effect} infinite 0 true`)}
+        if (task.effect !== undefined) {server.runCommandSilent(`/effect give ${mob.getStringUuid()} ${task.effect} infinite 0 true`)}
     }
 
     /**
