@@ -11,21 +11,9 @@
  * /kubejs persistent_data entity @s merge {watching:0}
  */
 
-let spawnMobTimer = {
-    "creeper":          20*10 + Math.ceil(20 * 10  * (0.75+0.5*Math.random())),
-    "piglin":           20*10 + Math.ceil(20 * 20  * (0.5+1.0*Math.random())),
-    "skeleton":         20*10 + Math.ceil(20 * 60  * (0.5+1.0*Math.random())),
-    "ravager":          20*10 + Math.ceil(20 * 120 * (0.5+1.0*Math.random())),
-    "pillager":         20*10 + Math.ceil(20 * 60 * 5 * (0.25+1.5*Math.random())),
-    "wither_skeleton":  20*10 + Math.ceil(20 * 60 * 10 * (0.25+1.5*Math.random())),
-    "zombie":           20*10 + Math.ceil(20 * 60 * 15 * (0.25+1.5*Math.random())),
-    // "zombie": 20 * 10,
-    "elder_guardian":   20*10 + Math.ceil(20 * 60 * 30 * (0.25+1.5*Math.random())),
-    "warden":           20*10 + Math.ceil(20 * 60 * 60 * (0.25+1.5*Math.random())),
-}
 let spawnMobStack = [] // 包含所有已加入队列的生成任务
 let watchingStack = [] // 生成怪物时伴随的增加观看奖励
-let goldStack = [] // 生成怪物时伴随的金币奖励
+let goldPile = 0 // 生成怪物时伴随的金币奖励
 let commentTicker = 0 // 倒计时到达20时，将 commentStack 加入 spawnMobStack，模拟限制评论频率的功能
 let commentStack = []
 let commentRash = false
@@ -40,6 +28,24 @@ PlayerEvents.tick( event => {
     let spawnHighway = player.persistentData.getBoolean("spawn_highway")
     let spawnMobs = player.persistentData.getBoolean("spawn_mobs")
     let streamEnvo = player.persistentData.getBoolean("stream_envo")
+
+    /**
+     * 根据权重返回随机结果的函数
+     * @param {Object} items 
+     * @returns {String} 其中一项
+     */
+    function wrad(items) {
+        const totalWeight = items.reduce((sum, item) => sum + item.weight, 0);
+        const rand = Math.random() * totalWeight;
+        let cumulative = 0;
+        
+        for (const item of items) {
+            cumulative += item.weight;
+            if (rand < cumulative) {
+                return item.value;
+            }
+        }
+    }
 
     /* 生成地图部分 */
     function decideTemplate() {
@@ -80,6 +86,10 @@ PlayerEvents.tick( event => {
         server.runCommandSilent(`/kill @e[type=item,nbt={Item:{id:"minecraft:cyan_terracotta"}}]`)
     }
 
+    /**
+     * 实际生成怪物的函数，包含命名、按倍数放大等功能
+     * @param {Object} task 包含生成所需要的各种信息
+     */
     function summon_mob(task) {
         // console.log(task)
         let mob = level.createEntity(`minecraft:${task.id}`)
@@ -111,6 +121,12 @@ PlayerEvents.tick( event => {
         if (task.effect !== undefined) {server.runCommandSilent(`effect give ${mob.getStringUuid()} ${task.effect} infinite 0 true`)}
     }
 
+    /**
+     * 一站式完成客户端展示玩意
+     * @param {String} name 用户名
+     * @param {String} sent "2x Piglin"
+     * @param {String} chat "200 likes"
+     */
     function client_pack(name, sent, chat) {
         Client.gui.setTitle("")
         Client.gui.setSubtitle(Component.of([{"text": name,"color": "red", "bold": true},{"text":" Sent ","color":"white"},{"text":sent,"color":"yellow"}]))
@@ -118,6 +134,11 @@ PlayerEvents.tick( event => {
         player.displayClientMessage(Component.of([{"text": name,"color": "red"},{"text":` Sent ${chat}!`,"color":"white"},{"text":` (${sent})`,"color":"yellow", "bold": true}]), false)
     }
 
+    /**
+     * 生成boss栏
+     * @param {String} username 用户名
+     * @param {integer} max boss栏的最大值
+     */
     function bossbar(username, max) {
         let id = username.toLowerCase()
         server.customBossEvents.create(id, Component.of({"text":username,"color":"yellow", "bold": true}))
@@ -176,7 +197,7 @@ PlayerEvents.tick( event => {
         }
     }
     if (spawnMobs) { // 评论模拟部分
-        commentTicker++
+        // commentTicker++
         let msg = genMsg()
         if (commentRash) { // 1秒内出现评论概率0.88
             if (Math.random() < 0.1) commentStack.push({count: 1,id: "creeper", name: msg, color: "yellow"})
@@ -203,9 +224,8 @@ PlayerEvents.tick( event => {
     if (spawnMobs && Math.random() < smashLikePrb) { // 刷赞的怪物生成事件
         // console.log("smashLikePrb: "+smashLikePrb)
         // event.server.tell("计时器触发")
-        var roll = Math.random()
         var name = genName()
-        if (roll > 0.2) { // 200赞事件-猪灵x2
+        if (Math.random() > 0.2) { // 200赞事件-猪灵x2
             client_pack(name, "2x Piglin", "200 likes")
             bossbar(name, 2*16)
             spawnMobStack.push({count: 2,
@@ -224,103 +244,123 @@ PlayerEvents.tick( event => {
             watchingStack.push(Math.ceil(10.00 * Math.random()))
         }
     }
-    // giftPrb = 0 // 暂时禁止送礼事件
+    // giftPrb = 0.05
+    const giftDict = [
+        {value: "piglin",           weight: 60},
+        {value: "creeper",          weight: 15},
+        {value: "skeleton",         weight: 15},
+        {value: "ravager",          weight: 10},
+        {value: "pillager",         weight: 5},
+        {value: "wither_skeleton",  weight: 2},
+        {value: "zombie",           weight: 2},
+        {value: "elder_guardian",   weight: 0.5},
+        {value: "warden",           weight: 0.1},
+    ]
     if (spawnMobs && Math.random() < giftPrb) { // 送礼的怪物生成事件
-        if (spawnMobTimer["piglin"] == 0) {
-            let name = genName()
-            client_pack(name, "2x Piglin")
-            spawnMobStack.push({count: 2,
-                id: "piglin", pos: [mobX, player.getZ()+12.0], name: name, color: "red", handItem: "crossbow", extraNbt: {IsImmuneToZombification: true},
-            })
-            spawnMobTimer["piglin"] = Math.ceil(20 * 30 * (0.5+1.0*Math.random()))
-        } else {
-            // event.server.tell("piglin: "+spawnMobTimer["piglin"])
-            // spawnMobTimer["piglin"]--;
+        var name = genName()
+        switch (wrad(giftDict)) {
+            case "piglin": // 猪灵x2 - 虞美人1g
+                client_pack(name, "2x Piglin", "Poppy")
+                bossbar(name, 2*16)
+                spawnMobStack.push({count: 2,
+                    id: "piglin", pos: [mobX, player.getZ()+12.0], name: name, color: "red", username: name.toLowerCase(), 
+                    handItem: "crossbow", extraNbt: {IsImmuneToZombification: true},
+                })
+                goldPile += 1
+                break
+            case "creeper": // 闪电苦力怕x3 - 玫瑰5g
+                client_pack(name, "3x Charged Creeper", "Rose")
+                bossbar(name, 3*20)
+                spawnMobStack.push({count: 3,
+                    id: "creeper", pos: [mobX, player.getZ()+8.0], name: name, color: "red", username: name.toLowerCase(),
+                })
+                spawnMobStack.push({count: 1, 
+                    id: "lightning_bolt", pos: [mobX, player.getZ()+8.0]
+                })
+                goldPile += 5
+                break
+            case "skeleton": // 骷髅x5 - 孢子花10g
+                client_pack(name, "5x Skelenton", "Blossom")
+                bossbar(name, 5*20)
+                spawnMobStack.push({count: 5,
+                    id: "skeleton", pos: [mobX, player.getZ()+12.0], name: name, color: "red", username: name.toLowerCase(), 
+                    handItem: "bow",
+                })
+                goldPile += 10
+                break
         }
 
-        if (spawnMobTimer["skeleton"] == 0) {
-            let name = genName()
-            client_pack(name, "5x Skelenton")
-            spawnMobStack.push({count: 5,
-                id: "skeleton", pos: [mobX, player.getZ()+12.0], name: name, color: "red", handItem: "bow",
-            })
-            spawnMobTimer["skeleton"] = Math.ceil(20 * 60 * (0.5+1.0*Math.random()))
-        } else {
-            // event.server.tell("skeleton: "+spawnMobTimer["skeleton"])
-            // spawnMobTimer["skeleton"]--;
-        }
+        // if (spawnMobTimer["ravager"] == 0) {
+        //     let name = genName()
+        //     client_pack(name, "3x Ravager")
+        //     spawnMobStack.push({count: 3,
+        //         id: "ravager", pos: [mobX, player.getZ()+12.0], name: name, color: "red"
+        //     })
+        //     spawnMobTimer["ravager"] = Math.ceil(20 * 120 * (0.5+1.0*Math.random()))
+        // } else {
+        //     // event.server.tell("ravager: "+spawnMobTimer["ravager"])
+        //     // spawnMobTimer["ravager"]--;
+        // }
 
-        if (spawnMobTimer["ravager"] == 0) {
-            let name = genName()
-            client_pack(name, "3x Ravager")
-            spawnMobStack.push({count: 3,
-                id: "ravager", pos: [mobX, player.getZ()+12.0], name: name, color: "red"
-            })
-            spawnMobTimer["ravager"] = Math.ceil(20 * 120 * (0.5+1.0*Math.random()))
-        } else {
-            // event.server.tell("ravager: "+spawnMobTimer["ravager"])
-            // spawnMobTimer["ravager"]--;
-        }
+        // if (spawnMobTimer["pillager"] == 0) {
+        //     let name = genName()
+        //     client_pack(name, "20x Pillager")
+        //     spawnMobStack.push({count: 20,
+        //         id: "pillager", pos: [mobX, player.getZ()+16.0], name: name, color: "red", handItem: "crossbow"
+        //     })
+        //     spawnMobTimer["pillager"] = Math.ceil(20 * 300 * (0.25+1.5*Math.random()))
+        // } else {
+        //     // event.server.tell("pillager: "+spawnMobTimer["pillager"])
+        //     // spawnMobTimer["pillager"]--;
+        // }
 
-        if (spawnMobTimer["pillager"] == 0) {
-            let name = genName()
-            client_pack(name, "20x Pillager")
-            spawnMobStack.push({count: 20,
-                id: "pillager", pos: [mobX, player.getZ()+16.0], name: name, color: "red", handItem: "crossbow"
-            })
-            spawnMobTimer["pillager"] = Math.ceil(20 * 300 * (0.25+1.5*Math.random()))
-        } else {
-            // event.server.tell("pillager: "+spawnMobTimer["pillager"])
-            // spawnMobTimer["pillager"]--;
-        }
+        // if (spawnMobTimer["wither_skeleton"] == 0) {
+        //     let name = genName()
+        //     client_pack(name, "40x Wither Skelenton")
+        //     spawnMobStack.push({count: 20,
+        //         id: "wither_skeleton", pos: [mobX, player.getZ()+16.0], name: name, color: "red", handItem: "stone_sword", multi: 2
+        //     })
+        //     spawnMobTimer["wither_skeleton"] = Math.ceil(20 * 600 * (0.25+1.5*Math.random()))
+        // } else {
+        //     // event.server.tell("wither_skeleton: "+spawnMobTimer["wither_skeleton"])
+        //     // spawnMobTimer["wither_skeleton"]--;
+        // }
 
-        if (spawnMobTimer["wither_skeleton"] == 0) {
-            let name = genName()
-            client_pack(name, "40x Wither Skelenton")
-            spawnMobStack.push({count: 20,
-                id: "wither_skeleton", pos: [mobX, player.getZ()+16.0], name: name, color: "red", handItem: "stone_sword", multi: 2
-            })
-            spawnMobTimer["wither_skeleton"] = Math.ceil(20 * 600 * (0.25+1.5*Math.random()))
-        } else {
-            // event.server.tell("wither_skeleton: "+spawnMobTimer["wither_skeleton"])
-            // spawnMobTimer["wither_skeleton"]--;
-        }
+        // if (spawnMobTimer["zombie"] == 0) {
+        //     let name = genName()
+        //     client_pack(name, "60x Zombie")
+        //     spawnMobStack.push({count: 30,
+        //         id: "zombie", pos: [mobX, player.getZ()+16.0], name: name, color: "red", multi: 2
+        //     })
+        //     spawnMobTimer["zombie"] = Math.ceil(20 * 600 * (0.25+1.5*Math.random()))
+        // } else {
+        //     // event.server.tell("zombie: "+spawnMobTimer["zombie"])
+        //     // spawnMobTimer["zombie"]--;
+        // }
 
-        if (spawnMobTimer["zombie"] == 0) {
-            let name = genName()
-            client_pack(name, "60x Zombie")
-            spawnMobStack.push({count: 30,
-                id: "zombie", pos: [mobX, player.getZ()+16.0], name: name, color: "red", multi: 2
-            })
-            spawnMobTimer["zombie"] = Math.ceil(20 * 600 * (0.25+1.5*Math.random()))
-        } else {
-            // event.server.tell("zombie: "+spawnMobTimer["zombie"])
-            // spawnMobTimer["zombie"]--;
-        }
+        // if (spawnMobTimer["elder_guardian"] == 0) {
+        //     let name = genName()
+        //     client_pack(name, "25x Elder Guardian")
+        //     spawnMobStack.push({count: 25,
+        //         id: "elder_guardian", pos: [mobX, player.getZ()+16.0], name: name, color: "red", effect: "water_breathing"
+        //     })
+        //     spawnMobTimer["elder_guardian"] = Math.ceil(20 * 600 * (0.25+1.5*Math.random()))
+        // } else {
+        //     // event.server.tell("elder_guardian: "+spawnMobTimer["elder_guardian"])
+        //     // spawnMobTimer["elder_guardian"]--;
+        // }
 
-        if (spawnMobTimer["elder_guardian"] == 0) {
-            let name = genName()
-            client_pack(name, "25x Elder Guardian")
-            spawnMobStack.push({count: 25,
-                id: "elder_guardian", pos: [mobX, player.getZ()+16.0], name: name, color: "red", effect: "water_breathing"
-            })
-            spawnMobTimer["elder_guardian"] = Math.ceil(20 * 600 * (0.25+1.5*Math.random()))
-        } else {
-            // event.server.tell("elder_guardian: "+spawnMobTimer["elder_guardian"])
-            // spawnMobTimer["elder_guardian"]--;
-        }
-
-        if (spawnMobTimer["warden"] == 0) {
-            let name = genName()
-            client_pack(name, "1x Warden")
-            spawnMobStack.push({count: 1,
-                id: "warden", pos: [mobX, player.getZ()+16.0], name: name, color: "red"
-            })
-            spawnMobTimer["warden"] = Math.ceil(20 * 600 * (0.25+1.5*Math.random()))
-        } else {
-            // event.server.tell("warden: "+spawnMobTimer["warden"])
-            // spawnMobTimer["warden"]--;
-        }
+        // if (spawnMobTimer["warden"] == 0) {
+        //     let name = genName()
+        //     client_pack(name, "1x Warden")
+        //     spawnMobStack.push({count: 1,
+        //         id: "warden", pos: [mobX, player.getZ()+16.0], name: name, color: "red"
+        //     })
+        //     spawnMobTimer["warden"] = Math.ceil(20 * 600 * (0.25+1.5*Math.random()))
+        // } else {
+        //     // event.server.tell("warden: "+spawnMobTimer["warden"])
+        //     // spawnMobTimer["warden"]--;
+        // }
     }
     // console.log(spawnMobStack)
     if (spawnMobStack.length > 0) {
@@ -333,14 +373,9 @@ PlayerEvents.tick( event => {
             spawnMobStack.shift()
         }
     }
-    if (goldStack.length > 0) {
-        let goldPile = goldStack[0]
-        if (goldPile.count > 0) {
-            player.give('thermal:gold_coin')
-            goldPile.count--;
-        } else {
-            goldStack.shift()
-        }
+    if (goldPile > 0) {
+        player.give('thermal:gold_coin')
+        goldPile--;
     }
 
     
