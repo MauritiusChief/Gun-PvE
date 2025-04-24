@@ -29,7 +29,7 @@ EntityEvents.hurt( event => {
             event.cancel()
             return
         } // 闪电苦力怕免疫闪电伤害
-        console.log("进入点燃程序")
+        // console.log("进入点燃程序")
         let nbt = entity.getNbt()
         nbt.powered = 0
         nbt.ignited = true

@@ -182,7 +182,7 @@ PlayerEvents.tick( event => {
 
         // 随机变化和粉丝数变化
         if (watching == 0 && Math.random() < 0.2) watching += Math.round(3 * Math.random())
-        if (watching >= 1 && Math.random() < 0.2) watching += Math.round(-1 + 1.8 * Math.random())
+        if (watching >= 1 && Math.random() < 0.2) watching += Math.round(-1 + 1.5 * Math.random())
         if (followers >= 1 && Math.random() < 5e-5) followers += Math.floor(-1 * Math.random())
         // 更新观看和粉丝数
         player.setStatusMessage(Component.of([
