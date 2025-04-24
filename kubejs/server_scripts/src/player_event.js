@@ -117,6 +117,14 @@ PlayerEvents.tick( event => {
         // let test = player.getRotationVector()
         // mob.setRotation(test.x, test.y)
         mob.spawn();
+        // 此处生成坐骑并让 mob 骑上去
+        if (task.riding !== undefined) {
+            const riding = task.riding
+            let carrier = level.createEntity(`minecraft:${riding.id}`)
+            if (task.username !== undefined) mob.persistentData.putString("username", task.username)
+            carrier.spawn()
+            mob.startRiding(carrier)
+        }
         server.runCommandSilent(`/team join Mob ${mob.getStringUuid()}`)
         if (task.effect !== undefined) {server.runCommandSilent(`effect give ${mob.getStringUuid()} ${task.effect} infinite 0 true`)}
     }
@@ -249,7 +257,7 @@ PlayerEvents.tick( event => {
     // giftPrb = 0.01
     const giftDict = [
         {value: "piglin",           weight: 60},
-        {value: "creeper",          weight: 15},
+        {value: "skeleton_horse",   weight: 15},
         {value: "skeleton",         weight: 15},
         {value: "ravager",          weight: 10},
         {value: "pillager",         weight: 5},
