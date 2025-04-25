@@ -47,7 +47,7 @@ EntityEvents.hurt( event => {
         // 不 return，继续执行boss条相关内容
     }
     // boss条相关内容
-    let sender = entity.persistentData.getString("username")
+    let sender = entity.persistentData.getString("userid")
     // console.log("hurt event, sender: "+sender)
     if (sender !== "") {
         let bossBar = server.getCustomBossEvents().get(sender)
@@ -78,7 +78,7 @@ EntityEvents.death( event => {
         return
     }
 
-    let sender = entity.persistentData.getString("username")
+    let sender = entity.persistentData.getString("userid")
     let selfUUID = entity.getStringUuid()
     // console.log("death event, sender === \"\"? ")
     // console.log(sender === "")

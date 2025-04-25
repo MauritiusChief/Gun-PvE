@@ -104,10 +104,10 @@ PlayerEvents.tick( event => {
         let mob = level.createEntity(`minecraft:${task.id}`)
         // console.log("name & color")
         // console.log(task.name !== undefined && task.color !== undefined)
-        // console.log("username")
-        // console.log(task.username !== undefined)
+        // console.log("userid")
+        // console.log(task.userid !== undefined)
         if (task.name !== undefined && task.color !== undefined) mob.setCustomName(Component.of({"text": task.name, "color": task.color, "bold": true}))
-        if (task.username !== undefined) mob.persistentData.putString("username", task.username)
+        if (task.userid !== undefined) mob.persistentData.putString("userid", task.userid)
         mob.setCustomNameVisible(true)
         if (task.handItem !== undefined) { mob.mergeNbt({HandItems:[{id: task.handItem, Count: 1},{}]}) }
         if (task.extraNbt !== undefined) { mob.mergeNbt(task.extraNbt) }
@@ -130,7 +130,7 @@ PlayerEvents.tick( event => {
         if (task.riding !== undefined) {
             const riding = task.riding
             let carrier = level.createEntity(`minecraft:${riding.id}`)
-            if (task.username !== undefined) mob.persistentData.putString("username", task.username)
+            if (task.userid !== undefined) mob.persistentData.putString("userid", task.userid)
             carrier.spawn()
             mob.startRiding(carrier)
         }
@@ -148,14 +148,14 @@ PlayerEvents.tick( event => {
     /**
      * 一站式完成客户端展示玩意
      * @param {String} name 用户名
-     * @param {String} sent "2x Piglin"
-     * @param {String} chat "200 likes"
+     * @param {String} mob "2x猪灵"
+     * @param {String} act "点了200个赞!"
      */
-    function client_pack(name, sent, chat) {
+    function client_pack(name, mob, act) {
         Client.gui.setTitle("")
-        Client.gui.setSubtitle(Component.of([{"text": name,"color": "red", "bold": true},{"text":" Sent ","color":"white"},{"text":sent,"color":"yellow"}]))
+        Client.gui.setSubtitle(Component.of([{"text": name, "color": "red", "bold": true},{"text":" 赠送了 ","color":"white"},{"text":mob,"color":"yellow"}]))
         // player.setStatusMessage(Component.of([{"text":"Sent ","color":"white"},{"text":sent,"color":"yellow"}]))
-        player.displayClientMessage(Component.of([{"text": name,"color": "red"},{"text":` Sent ${chat}!`,"color":"white"},{"text":` (${sent})`,"color":"yellow", "bold": true}]), false)
+        player.displayClientMessage(Component.of([{"text": name,"color": "red"},{"text":` ${act}`,"color":"white"},{"text":` (${mob})`,"color":"yellow", "bold": true}]), false)
     }
 
     /**
@@ -164,9 +164,9 @@ PlayerEvents.tick( event => {
      * @param {integer} max boss栏的最大值
      */
     function bossbar(username, max) {
-        let id = username.toLowerCase()
-        server.customBossEvents.create(id, Component.of({"text":username,"color":"yellow", "bold": true}))
-        let bar = server.customBossEvents.get(id)
+        let userid = nameToId(username)
+        server.customBossEvents.create(userid, Component.of({"text":username,"color":"white", "bold": true}))
+        let bar = server.customBossEvents.get(userid)
         bar.setColor("red")
         bar.setOverlay("progress")
         bar.setMax(max)
@@ -206,8 +206,8 @@ PlayerEvents.tick( event => {
         }
         // 更新观看和粉丝数
         player.setStatusMessage(Component.of([
-            {"text":"Watching: ","color":"aqua", "bold": true},{"text":watching.toFixed(0),"color":"white", "bold": true},
-            {"text":"  Followers: ","color":"aqua", "bold": true},{"text":followers.toFixed(0),"color":"white", "bold": true}
+            {"text":"观看人数: ","color":"aqua", "bold": true},{"text":watching.toFixed(0),"color":"white", "bold": true},
+            {"text":"  粉丝数: ","color":"aqua", "bold": true},{"text":followers.toFixed(0),"color":"white", "bold": true}
         ]))
         player.persistentData.putInt("watching", watching)
         player.persistentData.putInt("followers", followers)
@@ -275,7 +275,7 @@ PlayerEvents.tick( event => {
         if (Math.random() < newFollowerPrb) {
             let followIncre = player.persistentData.getInt("followers")
             var name = genName()
-            client_pack(name, "2x Piglin", "a follow")
+            client_pack(name, "2x猪灵", "关注了!")
             // 生成欢迎烟花
             // Item.of('minecraft:firework_rocket', 3, '{Fireworks:{Explosions:[{Colors:[I;11743532],Flicker:1b,Trail:1b,Type:1b,"forge:shape_type":"LARGE_BALL"}],Flight:1b}}')
             let fireWork = level.createEntity("firework_rocket")
@@ -284,7 +284,7 @@ PlayerEvents.tick( event => {
             fireWork.spawn()
 
             spawnMobStack.push({count: 2,
-                id: "piglin", pos: [mobX, player.getZ()+12.0], name: name, color: "red", username: name.toLowerCase(), 
+                id: "piglin", pos: [mobX, player.getZ()+12.0], name: name, color: "red", userid: nameToId(name), 
                 handItem: "crossbow", extraNbt: {IsImmuneToZombification: true},
             })
             // console.log("[🔺]触发涨粉")
@@ -302,19 +302,19 @@ PlayerEvents.tick( event => {
         if (Math.random() < smashLikePrb) {
             var name = genName()
             if (Math.random() > 0.2) { // 200赞事件-猪灵x2
-                client_pack(name, "2x Piglin", "200 likes")
+                client_pack(name, "2x猪灵", "点了200个赞!")
                 level.spawnParticles('minecraft:lava', true, mobX, -59, player.getZ()+12.0, 0.2, 0.1, 0.2, 20, 50)
                 spawnMobStack.push({count: 2,
-                    id: "piglin", pos: [mobX, player.getZ()+12.0], name: name, color: "red", username: name.toLowerCase(), 
+                    id: "piglin", pos: [mobX, player.getZ()+12.0], name: name, color: "red", userid: nameToId(name), 
                     handItem: "crossbow", extraNbt: {IsImmuneToZombification: true},
                 })
                 watchingStack.push(Math.ceil(2.00 * Math.random()))
             } else { // 1000赞事件-闪电苦力怕x3
-                client_pack(name, "3x Charged Creeper", "1000 likes")
+                client_pack(name, "3x闪电苦力怕", "点了1000个赞!")
                 level.spawnParticles('minecraft:lava', true, mobX, -59, player.getZ()+12.0, 0.2, 0.1, 0.2, 20, 50)
                 spawnMobStack.push({count: 3,
                     id: "creeper", pos: [mobX, player.getZ()+8.0], name: name, color: "red", 
-                    effects: [{id: "resistance", lv: "5", t: "5"}, {id: "fire_resistance", lv: "1", t: "infinite"}]
+                    effects: [{id: "resistance", lv: "5", t: "5"}]
                 })
                 spawnMobStack.push({count: 1, 
                     id: "lightning_bolt", pos: [mobX, player.getZ()+8.0]
@@ -346,18 +346,18 @@ PlayerEvents.tick( event => {
             console.log("[🟨]触发送礼: "+giftItem)
             switch (giftItem) {
                 case "piglin": // 猪灵x2 - 虞美人1g
-                    client_pack(name, "2x Piglin", "Poppy")
+                    client_pack(name, "2x猪灵", "赠送了虞美人!")
                     spawnMobStack.push({count: 2,
-                        id: "piglin", pos: [mobX, player.getZ()+12.0], name: name, color: "red", username: name.toLowerCase(), 
+                        id: "piglin", pos: [mobX, player.getZ()+12.0], name: name, color: "red", userid: nameToId(name), 
                         handItem: "crossbow", extraNbt: {IsImmuneToZombification: true},
                     })
                     goldPile += 1
                     break
                 case "creeper": // 闪电苦力怕x3 - 玫瑰5g
-                    client_pack(name, "3x Charged Creeper", "Rose")
+                    client_pack(name, "3x闪电苦力怕", "赠送了玫瑰!")
                     spawnMobStack.push({count: 3,
                         id: "creeper", pos: [mobX, player.getZ()+8.0], name: name, color: "red", 
-                        effects: [{id: "resistance", lv: "5", t: "5"}, {id: "fire_resistance", lv: "1", t: "infinite"}]
+                        effects: [{id: "resistance", lv: "5", t: "5"}]
                     })
                     spawnMobStack.push({count: 1, 
                         id: "lightning_bolt", pos: [mobX, player.getZ()+8.0]
@@ -365,10 +365,10 @@ PlayerEvents.tick( event => {
                     goldPile += 5
                     break
                 case "skeleton": // 骷髅x5 - 孢子花10g
-                    client_pack(name, "5x Skelenton", "Blossom")
+                    client_pack(name, "5x骷髅", "赠送了孢子花!")
                     bossbar(name, 5*20)
                     spawnMobStack.push({count: 5,
-                        id: "skeleton", pos: [mobX, player.getZ()+12.0], name: name, color: "red", username: name.toLowerCase(), 
+                        id: "skeleton", pos: [mobX, player.getZ()+12.0], name: name, color: "red", userid: nameToId(name), 
                         handItem: "bow",
                     })
                     goldPile += 10
@@ -483,12 +483,27 @@ PlayerEvents.tick( event => {
 })
 
 function genName() {
-    const adjectives = ['Cool', 'Fast', 'Happy', 'Chill', 'Lazy', 'Sneaky', 'Smart', 'Epic'];
-    const animals = ['Cat', 'Dog', 'Panda', 'Fox', 'Koala', 'Tiger', 'Wolf', 'Bear'];
+    const adjectives = ['冷酷', '迅捷', '快乐', '悠闲', '懒惰', '狡猾', '聪明', '史诗'];
+    const animals = ['猫猫', '狗狗', '熊猫', '狐狸', '考拉', '老虎', '灰狼', '棕熊'];
     const number = Math.floor(Math.random() * 9000) + 1000; // 1000-9999
     const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
     const animal = animals[Math.floor(Math.random() * animals.length)];
     return `${adj}${animal}_${number}`;
+}
+const pinyinMap = {'冷酷': 'lengku','迅捷': 'xunjie','快乐': 'kuaile','悠闲': 'youxian','懒惰': 'landuo','狡猾': 'jiaohua','聪明': 'congming','史诗': 'shishi','猫猫': 'maomao','狗狗': 'gougou','熊猫': 'xiongmao','狐狸': 'huli','考拉': 'kaola','老虎': 'laohu','灰狼': 'huilang','棕熊': 'zongxiong'};
+
+function nameToId(name) {
+    // 拆分，例如 冷酷猫猫_1234
+    const [full, number] = name.split('_');
+    // 从pinyinMap中找匹配
+    let pinyinName = '';
+    for (const key in pinyinMap) {
+        if (full.includes(key)) {
+            pinyinName += pinyinMap[key];
+        }
+    }
+    // 加上数字
+    return (pinyinName + number).toLowerCase();
 }
   
 function genMsg() {
