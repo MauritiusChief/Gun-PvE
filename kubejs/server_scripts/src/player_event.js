@@ -185,12 +185,12 @@ PlayerEvents.tick( event => {
         if (watchingStack.length > 0) {watching += watchingStack.shift()} // 加上刷赞的观看奖励
 
         // newFollowerPrb *= (1.00 + watching * 0.05) // 200观看=>1分钟内涨粉概率0.73  1000观看=>10秒内涨粉概率0.64
-        newFollowerPrb *= watching <= 700 ? (1.00 + watching * 0.05) : 36.0
+        newFollowerPrb *= watching <= 400 ? (1.00 + watching * 0.05) : 21.0
 
         // 由于精度问题，采用近似公式：泊松分布逼近
         if (watching > 0) smashLikePrb = 1 - Math.exp(-smashLikePrb * watching) // 100观看=>1分钟内刷赞概率0.70
-        if (followers > 0) giftPrb = 1 - Math.exp(-giftPrb * followers) // 50粉=>1分钟内送礼概率0.99
-        // console.log((1-(1-smashLikePrb)**(20*60)).toFixed(5))
+        if (followers > 0) giftPrb = 1 - Math.exp(-giftPrb * followers)
+        giftPrb *= watching > 400 ? (watching * 0.01 - 3) : 1.0 // 400观看之后，加成提现到送礼概率上
 
         // 随机变化和粉丝数变化
         if (Math.random() < 0.2) {
@@ -329,7 +329,7 @@ PlayerEvents.tick( event => {
     // giftPrb = 0.01
     const giftDict = [
         {value: "piglin",           weight: 60},
-        {value: "skeleton_horse",   weight: 15},
+        {value: "creeper",          weight: 15},
         {value: "skeleton",         weight: 15},
         {value: "ravager",          weight: 10},
         {value: "pillager",         weight: 5},
@@ -338,11 +338,12 @@ PlayerEvents.tick( event => {
         {value: "elder_guardian",   weight: 0.5},
         {value: "warden",           weight: 0.1},
     ]
+    // console.log(wrad(giftDict))
     if (spawnMobs && giftTicker >= giftTrigger) { // 送礼的怪物生成事件
         if (Math.random() < giftPrb) {
             var name = genName()
             var giftItem = wrad(giftDict)
-            // console.log("[🟨]触发送礼: "+giftItem)
+            console.log("[🟨]触发送礼: "+giftItem)
             switch (giftItem) {
                 case "piglin": // 猪灵x2 - 虞美人1g
                     client_pack(name, "2x Piglin", "Poppy")
