@@ -177,7 +177,7 @@ PlayerEvents.tick( event => {
     /* 直播模拟 */
     let smashLikePrb = 2e-3 // 每个观看10秒内刷赞概率
     let giftPrb = 1e-3 // 每个粉丝10秒内送礼概率
-    let newFollowerPrb = 0.001 // 每秒涨粉概率，10分钟涨粉概率0.45
+    let newFollowerPrb = 0.002 // 每秒涨粉概率，10分钟涨粉概率0.7
     if (streamEnvo) {
         let watching = player.persistentData.getInt("watching")
         let followers = player.persistentData.getInt("followers")
@@ -185,7 +185,7 @@ PlayerEvents.tick( event => {
         if (watchingStack.length > 0) {watching += watchingStack.shift()} // 加上刷赞的观看奖励
 
         // newFollowerPrb *= (1.00 + watching * 0.05) // 200观看=>1分钟内涨粉概率0.73  1000观看=>10秒内涨粉概率0.64
-        newFollowerPrb *= watching <= 180 ? (1.00 + watching * 0.05) : 10.0 // 最大5分钟涨粉概率0.95
+        newFollowerPrb *= watching <= 180 ? (1.00 + watching * 0.05) : 10.0 // 最大1分钟涨粉概率0.70
 
         // 由于精度问题，采用近似公式：泊松分布逼近
         if (watching > 0) smashLikePrb = 1 - Math.exp(-smashLikePrb * watching) // 100观看=>1分钟内刷赞概率0.70
@@ -276,6 +276,13 @@ PlayerEvents.tick( event => {
             let followIncre = player.persistentData.getInt("followers")
             var name = genName()
             client_pack(name, "2x Piglin", "a follow")
+            // 生成欢迎烟花
+            // Item.of('minecraft:firework_rocket', 3, '{Fireworks:{Explosions:[{Colors:[I;11743532],Flicker:1b,Trail:1b,Type:1b,"forge:shape_type":"LARGE_BALL"}],Flight:1b}}')
+            let fireWork = level.createEntity("firework_rocket")
+            fireWork.mergeNbt(`{FireworksItem:{Count:1b,id:"minecraft:firework_rocket",tag:{Fireworks:{Explosions:[{Colors:[I;11743532],Flicker:1b,Trail:1b,Type:1b,"forge:shape_type":"LARGE_BALL"}],Flight:1b}}}, LifeTime:20}`)
+            fireWork.setPosition(mobX, -59, player.getZ()+12.0)
+            fireWork.spawn()
+
             spawnMobStack.push({count: 2,
                 id: "piglin", pos: [mobX, player.getZ()+12.0], name: name, color: "red", username: name.toLowerCase(), 
                 handItem: "crossbow", extraNbt: {IsImmuneToZombification: true},
