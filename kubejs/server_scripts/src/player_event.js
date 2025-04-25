@@ -176,15 +176,16 @@ PlayerEvents.tick( event => {
 
     /* 直播模拟 */
     let smashLikePrb = 2e-3 // 每个观看10秒内刷赞概率
-    let giftPrb = 2e-4 // 每个粉丝10秒内送礼概率
-    let newFollowerPrb = 0.01 // 每秒涨粉概率
+    let giftPrb = 1e-3 // 每个粉丝10秒内送礼概率
+    let newFollowerPrb = 0.001 // 每秒涨粉概率，10分钟涨粉概率0.45
     if (streamEnvo) {
         let watching = player.persistentData.getInt("watching")
         let followers = player.persistentData.getInt("followers")
 
         if (watchingStack.length > 0) {watching += watchingStack.shift()} // 加上刷赞的观看奖励
 
-        newFollowerPrb *= (1.00 + watching * 0.05) // 200观看=>1分钟内涨粉概率0.73  1000观看=>10秒内涨粉概率0.64
+        // newFollowerPrb *= (1.00 + watching * 0.05) // 200观看=>1分钟内涨粉概率0.73  1000观看=>10秒内涨粉概率0.64
+        newFollowerPrb *= watching <= 180 ? (1.00 + watching * 0.05) : 10.0 // 最大5分钟涨粉概率0.95
 
         // 由于精度问题，采用近似公式：泊松分布逼近
         if (watching > 0) smashLikePrb = 1 - Math.exp(-smashLikePrb * watching) // 100观看=>1分钟内刷赞概率0.70
@@ -203,7 +204,6 @@ PlayerEvents.tick( event => {
                 watching += Math.round(3 * Math.random())
             }
         }
-        if (followers >= 1 && Math.random() < 0.005) followers += Math.floor(-1 * Math.random())
         // 更新观看和粉丝数
         player.setStatusMessage(Component.of([
             {"text":"Watching: ","color":"aqua", "bold": true},{"text":watching.toFixed(0),"color":"white", "bold": true},
@@ -238,9 +238,9 @@ PlayerEvents.tick( event => {
     if (spawnMobs) { // 评论模拟部分
         commentTicker++
         let msg = genMsg()
-        if (commentRash) { // 1秒内出现评论概率0.64
-            if (Math.random() < 0.03) commentStack.push({count: 1, id: "creeper", name: msg, color: "yellow"})
-        } else { // 5秒内出现评论概率0.63
+        if (commentRash) {
+            if (Math.random() < 0.05) commentStack.push({count: 1, id: "creeper", name: msg, color: "yellow"})
+        } else {
             if (Math.random() < 0.005) commentStack.push({count: 1, id: "creeper", name: msg, color: "yellow"})
         }
         // 倒计时到了就把 comment 都转移到 spawnMobStack
@@ -256,14 +256,14 @@ PlayerEvents.tick( event => {
             commentStack = [] // 重置 commentStack
             // 每次触发评论时，都有概率更新commentRash状态 
             if (!commentRash && (
-                    (watchForComm <= 50 && Math.random() < 0.01*watchForComm + 0.2) || 
-                    (watchForComm > 50 && Math.random() < 0.7)
+                    (watchForComm <= 50 && Math.random() < 0.01*watchForComm + 0.1) || 
+                    (watchForComm > 50 && Math.random() < 0.6)
                 )
             ) {
                 commentRash = true // 进入 commentRash
                 // server.tell("[DEBUG] 进入 commentRash")
             }
-            if (commentRash && Math.random() < 0.4) {
+            if (commentRash && Math.random() < 0.3) {
                 commentRash = false // 退出 commentRash
                 // server.tell("[DEBUG] 退出 commentRash")
             }
@@ -271,8 +271,8 @@ PlayerEvents.tick( event => {
         }
     } 
     // newFollowerPrb = 0.01
-    if (spawnMobs && newFollowerTicker >= newFollowerTrigger) {
-        if (Math.random() < newFollowerPrb) { // 模拟涨粉
+    if (spawnMobs && newFollowerTicker >= newFollowerTrigger) { // 模拟涨粉
+        if (Math.random() < newFollowerPrb) {
             let followIncre = player.persistentData.getInt("followers")
             var name = genName()
             client_pack(name, "2x Piglin", "a follow")
@@ -280,19 +280,19 @@ PlayerEvents.tick( event => {
                 id: "piglin", pos: [mobX, player.getZ()+12.0], name: name, color: "red", username: name.toLowerCase(), 
                 handItem: "crossbow", extraNbt: {IsImmuneToZombification: true},
             })
-            // console.log("[🔺]触发涨粉")
+            console.log("[🔺]触发涨粉")
             // console.log(spawnMobStack)
             followIncre++
             player.persistentData.putInt("followers", followIncre)
         }
-    newFollowerTicker = 0
-    newFollowerTrigger = 20 - 10 + 20*Math.random() // 平均1秒(20tick)检测一次
-    // console.log("newFollowerPrb: "+newFollowerPrb)
-    // console.log(`${newFollowerTicker}, ${smashLikeTicker}, ${giftTicker}`)
+        newFollowerTicker = 0
+        newFollowerTrigger = 20 - 10 + 20*Math.random() // 平均1秒(20tick)检测一次
+        // console.log("newFollowerPrb: "+newFollowerPrb)
+        // console.log(`${newFollowerTicker}, ${smashLikeTicker}, ${giftTicker}`)
     }
     // smashLikePrb = 0.01
-    if (spawnMobs && smashLikeTicker >= smashLikeTrigger) {
-        if (Math.random() < smashLikePrb) { // 刷赞的怪物生成事件
+    if (spawnMobs && smashLikeTicker >= smashLikeTrigger) { // 刷赞的怪物生成事件
+        if (Math.random() < smashLikePrb) {
             var name = genName()
             if (Math.random() > 0.2) { // 200赞事件-猪灵x2
                 client_pack(name, "2x Piglin", "200 likes")
@@ -313,9 +313,9 @@ PlayerEvents.tick( event => {
                 watchingStack.push(Math.ceil(10.00 * Math.random()))
             }
         }
-    smashLikeTicker = 0
-    smashLikeTrigger = 20 * (10 - 5 + 10*Math.random()) // 平均10秒检测一次
-    // console.log("smashLikePrb: "+smashLikePrb)
+        smashLikeTicker = 0
+        smashLikeTrigger = 20 * (10 - 5 + 10*Math.random()) // 平均10秒检测一次
+        // console.log("smashLikePrb: "+smashLikePrb)
     }
     // giftPrb = 0.01
     const giftDict = [
@@ -329,8 +329,8 @@ PlayerEvents.tick( event => {
         {value: "elder_guardian",   weight: 0.5},
         {value: "warden",           weight: 0.1},
     ]
-    if (spawnMobs && giftTicker >= giftTrigger) {
-        if (Math.random() < giftPrb) { // 送礼的怪物生成事件
+    if (spawnMobs && giftTicker >= giftTrigger) { // 送礼的怪物生成事件
+        if (Math.random() < giftPrb) {
             var name = genName()
             switch (wrad(giftDict)) {
                 case "piglin": // 猪灵x2 - 虞美人1g
@@ -435,9 +435,9 @@ PlayerEvents.tick( event => {
         //     // event.server.tell("warden: "+spawnMobTimer["warden"])
         //     // spawnMobTimer["warden"]--;
         // }
-    giftTicker = 0
-    giftTrigger = 20 * (10 - 5 + 10*Math.random()) // 平均10秒检测一次
-    // console.log("giftPrb: "+giftPrb)
+        giftTicker = 0
+        giftTrigger = 20 * (10 - 5 + 10*Math.random()) // 平均10秒检测一次
+        // console.log("giftPrb: "+giftPrb)
     }
 
     // console.log(spawnMobStack)
