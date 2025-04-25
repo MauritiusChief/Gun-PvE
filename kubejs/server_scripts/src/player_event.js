@@ -176,7 +176,7 @@ PlayerEvents.tick( event => {
 
     /* 直播模拟 */
     let smashLikePrb = 2e-3 // 每个观看10秒内刷赞概率
-    let giftPrb = 1e-3 // 每个粉丝10秒内送礼概率
+    let giftPrb = 2e-3 // 每个粉丝10秒内送礼概率
     let newFollowerPrb = 0.002 // 每秒涨粉概率，10分钟涨粉概率0.7
     if (streamEnvo) {
         let watching = player.persistentData.getInt("watching")
@@ -185,11 +185,11 @@ PlayerEvents.tick( event => {
         if (watchingStack.length > 0) {watching += watchingStack.shift()} // 加上刷赞的观看奖励
 
         // newFollowerPrb *= (1.00 + watching * 0.05) // 200观看=>1分钟内涨粉概率0.73  1000观看=>10秒内涨粉概率0.64
-        newFollowerPrb *= watching <= 180 ? (1.00 + watching * 0.05) : 10.0 // 最大1分钟涨粉概率0.70
+        newFollowerPrb *= watching <= 700 ? (1.00 + watching * 0.05) : 36.0
 
         // 由于精度问题，采用近似公式：泊松分布逼近
         if (watching > 0) smashLikePrb = 1 - Math.exp(-smashLikePrb * watching) // 100观看=>1分钟内刷赞概率0.70
-        if (followers > 0) giftPrb = 1 - Math.exp(-giftPrb * followers) // 100粉=>10分钟内送礼概率0.70
+        if (followers > 0) giftPrb = 1 - Math.exp(-giftPrb * followers) // 50粉=>1分钟内送礼概率0.99
         // console.log((1-(1-smashLikePrb)**(20*60)).toFixed(5))
 
         // 随机变化和粉丝数变化
@@ -287,7 +287,7 @@ PlayerEvents.tick( event => {
                 id: "piglin", pos: [mobX, player.getZ()+12.0], name: name, color: "red", username: name.toLowerCase(), 
                 handItem: "crossbow", extraNbt: {IsImmuneToZombification: true},
             })
-            console.log("[🔺]触发涨粉")
+            // console.log("[🔺]触发涨粉")
             // console.log(spawnMobStack)
             followIncre++
             player.persistentData.putInt("followers", followIncre)
@@ -303,6 +303,7 @@ PlayerEvents.tick( event => {
             var name = genName()
             if (Math.random() > 0.2) { // 200赞事件-猪灵x2
                 client_pack(name, "2x Piglin", "200 likes")
+                level.spawnParticles('minecraft:lava', true, mobX, -59, player.getZ()+12.0, 0.2, 0.1, 0.2, 20, 50)
                 spawnMobStack.push({count: 2,
                     id: "piglin", pos: [mobX, player.getZ()+12.0], name: name, color: "red", username: name.toLowerCase(), 
                     handItem: "crossbow", extraNbt: {IsImmuneToZombification: true},
@@ -310,6 +311,7 @@ PlayerEvents.tick( event => {
                 watchingStack.push(Math.ceil(2.00 * Math.random()))
             } else { // 1000赞事件-闪电苦力怕x3
                 client_pack(name, "3x Charged Creeper", "1000 likes")
+                level.spawnParticles('minecraft:lava', true, mobX, -59, player.getZ()+12.0, 0.2, 0.1, 0.2, 20, 50)
                 spawnMobStack.push({count: 3,
                     id: "creeper", pos: [mobX, player.getZ()+8.0], name: name, color: "red", 
                     effects: [{id: "resistance", lv: "5", t: "5"}, {id: "fire_resistance", lv: "1", t: "infinite"}]
@@ -339,7 +341,9 @@ PlayerEvents.tick( event => {
     if (spawnMobs && giftTicker >= giftTrigger) { // 送礼的怪物生成事件
         if (Math.random() < giftPrb) {
             var name = genName()
-            switch (wrad(giftDict)) {
+            var giftItem = wrad(giftDict)
+            // console.log("[🟨]触发送礼: "+giftItem)
+            switch (giftItem) {
                 case "piglin": // 猪灵x2 - 虞美人1g
                     client_pack(name, "2x Piglin", "Poppy")
                     spawnMobStack.push({count: 2,
