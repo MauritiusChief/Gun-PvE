@@ -71,7 +71,7 @@ EntityEvents.death( event => {
 
     /* 死亡实体是玩家 */
     if (entity.isPlayer()) {
-        const player = entity
+        const player = event.entity
         let watching = player.persistentData.getInt("watching")
         if (watching > 10) watching -= Math.floor(10 * Math.random()) // 死亡导致掉粉
         player.persistentData.putInt("watching", watching)

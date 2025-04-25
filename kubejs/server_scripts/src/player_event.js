@@ -188,7 +188,7 @@ PlayerEvents.tick( event => {
         newFollowerPrb *= watching <= 400 ? (1.00 + watching * 0.05) : 21.0
 
         // 由于精度问题，采用近似公式：泊松分布逼近
-        if (watching > 0) smashLikePrb = 1 - Math.exp(-smashLikePrb * watching) // 100观看=>1分钟内刷赞概率0.70
+        if (watching > 0) smashLikePrb = 1 - Math.exp(-smashLikePrb * watching/2)
         if (followers > 0) giftPrb = 1 - Math.exp(-giftPrb * followers)
         giftPrb *= watching > 400 ? (watching * 0.01 - 3) : 1.0 // 400观看之后，加成提现到送礼概率上
 
@@ -255,15 +255,11 @@ PlayerEvents.tick( event => {
             })
             commentStack = [] // 重置 commentStack
             // 每次触发评论时，都有概率更新commentRash状态 
-            if (!commentRash && (
-                    (watchForComm <= 50 && Math.random() < 0.01*watchForComm + 0.1) || 
-                    (watchForComm > 50 && Math.random() < 0.6)
-                )
-            ) {
+            if (!commentRash && Math.random() < 0.1 ) {
                 commentRash = true // 进入 commentRash
                 // server.tell("[DEBUG] 进入 commentRash")
             }
-            if (commentRash && Math.random() < 0.3) {
+            if (commentRash && Math.random() < 0.2) {
                 commentRash = false // 退出 commentRash
                 // server.tell("[DEBUG] 退出 commentRash")
             }
@@ -373,80 +369,61 @@ PlayerEvents.tick( event => {
                     })
                     goldPile += 10
                     break
+                case "ravager": // 劫掠兽x5 - 甜甜圈30g
+                    client_pack(name, "3x劫掠兽", "赠送了甜甜圈!")
+                    bossbar(name, 3*100)
+                    spawnMobStack.push({count: 3,
+                        id: "ravager", pos: [mobX, player.getZ()+12.0], name: name, color: "red", userid: nameToId(name), 
+                    })
+                    goldPile += 30
+                    break
+                case "pillager": // 掠夺者x20 - 蛋糕100g
+                    client_pack(name, "20x掠夺者", "赠送了蛋糕!")
+                    bossbar(name, 20*24)
+                    spawnMobStack.push({count: 20,
+                        id: "pillager", pos: [mobX, player.getZ()+12.0], name: name, color: "red", userid: nameToId(name), 
+                        handItem: "crossbow",
+                    })
+                    goldPile += 100
+                    break
+                case "wither_skeleton": // 凋零骷髅x40 - 护目镜199g
+                    client_pack(name, "40x凋零骷髅", "赠送了护目镜!")
+                    bossbar(name, 40*20)
+                    spawnMobStack.push({count: 20,
+                        id: "wither_skeleton", pos: [mobX, player.getZ()+12.0], name: name, color: "red", userid: nameToId(name), 
+                        handItem: "stone_sword", multi: 2
+                    })
+                    goldPile += 199
+                    break
+                case "zombie": // 僵尸x60 - 美西螈299g
+                    client_pack(name, "60x僵尸", "赠送了美西螈!")
+                    bossbar(name, 60*20)
+                    spawnMobStack.push({count: 30,
+                        id: "zombie", pos: [mobX, player.getZ()+12.0], name: name, color: "red", userid: nameToId(name), 
+                        multi: 2,
+                    })
+                    goldPile += 299
+                    break
+                case "elder_guardian": // 远古守卫者x25 - 绿宝石块500g
+                    client_pack(name, "25x远古守卫者", "赠送了绿宝石块!")
+                    bossbar(name, 25*80)
+                    spawnMobStack.push({count: 5,
+                        id: "elder_guardian", pos: [mobX, player.getZ()+12.0], name: name, color: "red", userid: nameToId(name), 
+                        effects: [{id: "water_breathing", lv: "0", t: "infinite"}]
+                    })
+                    goldPile += 500
+                    break
+                case "warden": // 监守者 - 金苹果699g
+                    client_pack(name, "监守者", "赠送了金苹果!")
+                    bossbar(name, 500)
+                    spawnMobStack.push({count: 1,
+                        id: "warden", pos: [mobX, player.getZ()+12.0], name: name, color: "red", userid: nameToId(name), 
+                    })
+                    goldPile += 699
+                    break
             }
 
         }
-        // if (spawnMobTimer["ravager"] == 0) {
-        //     let name = genName()
-        //     client_pack(name, "3x Ravager")
-        //     spawnMobStack.push({count: 3,
-        //         id: "ravager", pos: [mobX, player.getZ()+12.0], name: name, color: "red"
-        //     })
-        //     spawnMobTimer["ravager"] = Math.ceil(20 * 120 * (0.5+1.0*Math.random()))
-        // } else {
-        //     // event.server.tell("ravager: "+spawnMobTimer["ravager"])
-        //     // spawnMobTimer["ravager"]--;
-        // }
-
-        // if (spawnMobTimer["pillager"] == 0) {
-        //     let name = genName()
-        //     client_pack(name, "20x Pillager")
-        //     spawnMobStack.push({count: 20,
-        //         id: "pillager", pos: [mobX, player.getZ()+16.0], name: name, color: "red", handItem: "crossbow"
-        //     })
-        //     spawnMobTimer["pillager"] = Math.ceil(20 * 300 * (0.25+1.5*Math.random()))
-        // } else {
-        //     // event.server.tell("pillager: "+spawnMobTimer["pillager"])
-        //     // spawnMobTimer["pillager"]--;
-        // }
-
-        // if (spawnMobTimer["wither_skeleton"] == 0) {
-        //     let name = genName()
-        //     client_pack(name, "40x Wither Skelenton")
-        //     spawnMobStack.push({count: 20,
-        //         id: "wither_skeleton", pos: [mobX, player.getZ()+16.0], name: name, color: "red", handItem: "stone_sword", multi: 2
-        //     })
-        //     spawnMobTimer["wither_skeleton"] = Math.ceil(20 * 600 * (0.25+1.5*Math.random()))
-        // } else {
-        //     // event.server.tell("wither_skeleton: "+spawnMobTimer["wither_skeleton"])
-        //     // spawnMobTimer["wither_skeleton"]--;
-        // }
-
-        // if (spawnMobTimer["zombie"] == 0) {
-        //     let name = genName()
-        //     client_pack(name, "60x Zombie")
-        //     spawnMobStack.push({count: 30,
-        //         id: "zombie", pos: [mobX, player.getZ()+16.0], name: name, color: "red", multi: 2
-        //     })
-        //     spawnMobTimer["zombie"] = Math.ceil(20 * 600 * (0.25+1.5*Math.random()))
-        // } else {
-        //     // event.server.tell("zombie: "+spawnMobTimer["zombie"])
-        //     // spawnMobTimer["zombie"]--;
-        // }
-
-        // if (spawnMobTimer["elder_guardian"] == 0) {
-        //     let name = genName()
-        //     client_pack(name, "25x Elder Guardian")
-        //     spawnMobStack.push({count: 25,
-        //         id: "elder_guardian", pos: [mobX, player.getZ()+16.0], name: name, color: "red", effect: "water_breathing"
-        //     })
-        //     spawnMobTimer["elder_guardian"] = Math.ceil(20 * 600 * (0.25+1.5*Math.random()))
-        // } else {
-        //     // event.server.tell("elder_guardian: "+spawnMobTimer["elder_guardian"])
-        //     // spawnMobTimer["elder_guardian"]--;
-        // }
-
-        // if (spawnMobTimer["warden"] == 0) {
-        //     let name = genName()
-        //     client_pack(name, "1x Warden")
-        //     spawnMobStack.push({count: 1,
-        //         id: "warden", pos: [mobX, player.getZ()+16.0], name: name, color: "red"
-        //     })
-        //     spawnMobTimer["warden"] = Math.ceil(20 * 600 * (0.25+1.5*Math.random()))
-        // } else {
-        //     // event.server.tell("warden: "+spawnMobTimer["warden"])
-        //     // spawnMobTimer["warden"]--;
-        // }
         giftTicker = 0
         giftTrigger = 20 * (10 - 5 + 10*Math.random()) // 平均10秒检测一次
         // console.log("giftPrb: "+giftPrb)
