@@ -80,14 +80,14 @@ EntityEvents.death( event => {
 
     let sender = entity.persistentData.getString("userid")
     let selfUUID = entity.getStringUuid()
-    // console.log("death event, sender === \"\"? ")
+    // console.log("death event, sender: "+sender)
     // console.log(sender === "")
     if (sender !== "") {
         let bossBar = server.getCustomBossEvents().get(sender)
         if (bossBar == null) return // 如果 bossBar 是 null 则直接结束
         let barActive = level.getEntities().toArray().some( entity => {
-            let senderMatch = entity.persistentData.getString("username") == sender
-            let uuidDiffer = selfUUID != entity.getStringUuid() // 避免把实体自己算作存在
+            let senderMatch = entity.persistentData.getString("userid") === sender
+            let uuidDiffer = selfUUID !== entity.getStringUuid() // 避免把实体自己算作存在
             return senderMatch && uuidDiffer
         })
         // console.log("boss条应保留吗？："+barActive)

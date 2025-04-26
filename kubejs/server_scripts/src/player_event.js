@@ -179,7 +179,7 @@ PlayerEvents.tick( event => {
      * @param {String} item "create:sweet_roll"
      * @param {Array} pos 生成的位置
      */
-    function burstItem(item, pos) {
+    function burstItem(item) {
         for (let i=0; i<5; i++) {
             var itemEntity = level.createEntity("item")
             itemEntity.mergeNbt({Item:{id:item,Count:1},PickupDelay:-1,Age:5900})
