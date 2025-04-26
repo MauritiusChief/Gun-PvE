@@ -174,6 +174,21 @@ PlayerEvents.tick( event => {
         bar.setPlayers(server.players)
     }
 
+    /**
+     * 生成数个飞溅的不可拾取的过一会消失的物品来展示送出的礼物
+     * @param {String} item "create:sweet_roll"
+     * @param {Array} pos 生成的位置
+     */
+    function burstItem(item, pos) {
+        for (let i=0; i<5; i++) {
+            var itemEntity = level.createEntity("item")
+            itemEntity.mergeNbt({Item:{id:item,Count:1},PickupDelay:-1,Age:5900})
+            itemEntity.setMotion(0.5*Math.random()-0.25, 0.35*Math.random()+0.25, 0.5*Math.random()-0.25)
+            itemEntity.setPosition(player.getX(), player.getY(), player.getZ())
+            itemEntity.spawn()
+        }
+    }
+
     /* 直播模拟 */
     let smashLikePrb = 2e-3 // 每个观看10秒内刷赞概率
     let giftPrb = 2e-3 // 每个粉丝10秒内送礼概率
@@ -245,8 +260,7 @@ PlayerEvents.tick( event => {
         }
         // 倒计时到了就把 comment 都转移到 spawnMobStack
         if (commentTicker >= 20) {
-            let watchForComm = player.persistentData.getInt("watching") // 获取观看数据
-            watchForComm == 0 ? 1 :  watchForComm // 防止为0时的问题
+            // burstItem("minecraft:gunpowder", [mobX, player.getZ()+12.0])
             // console.log("[🟢]生成队列中目前还有 "+spawnMobStack.length+" 项：")
             // console.log(spawnMobStack)
             commentStack.forEach(comment => {
@@ -325,10 +339,10 @@ PlayerEvents.tick( event => {
     // giftPrb = 0.01
     const giftDict = [
         {value: "piglin",           weight: 60},
-        {value: "creeper",          weight: 15},
+        {value: "creeper",          weight: 20},
         {value: "skeleton",         weight: 15},
         {value: "ravager",          weight: 10},
-        {value: "pillager",         weight: 5},
+        {value: "pillager",         weight: 3},
         {value: "wither_skeleton",  weight: 2},
         {value: "zombie",           weight: 2},
         {value: "elder_guardian",   weight: 0.5},
@@ -343,6 +357,7 @@ PlayerEvents.tick( event => {
             switch (giftItem) {
                 case "piglin": // 猪灵x2 - 虞美人1g
                     client_pack(name, "2x猪灵", "赠送了虞美人!")
+                    burstItem("minecraft:poppy")
                     spawnMobStack.push({count: 2,
                         id: "piglin", pos: [mobX, player.getZ()+12.0], name: name, color: "red", userid: nameToId(name), 
                         handItem: "crossbow", extraNbt: {IsImmuneToZombification: true},
@@ -351,6 +366,7 @@ PlayerEvents.tick( event => {
                     break
                 case "creeper": // 闪电苦力怕x3 - 玫瑰5g
                     client_pack(name, "3x闪电苦力怕", "赠送了玫瑰!")
+                    burstItem("minecraft:rose_bush")
                     spawnMobStack.push({count: 3,
                         id: "creeper", pos: [mobX, player.getZ()+8.0], name: name, color: "red", 
                         effects: [{id: "resistance", lv: "5", t: "5"}]
@@ -362,6 +378,7 @@ PlayerEvents.tick( event => {
                     break
                 case "skeleton": // 骷髅x5 - 孢子花10g
                     client_pack(name, "5x骷髅", "赠送了孢子花!")
+                    burstItem("minecraft:spore_blossom")
                     bossbar(name, 5*20)
                     spawnMobStack.push({count: 5,
                         id: "skeleton", pos: [mobX, player.getZ()+12.0], name: name, color: "red", userid: nameToId(name), 
@@ -371,6 +388,7 @@ PlayerEvents.tick( event => {
                     break
                 case "ravager": // 劫掠兽x5 - 甜甜圈30g
                     client_pack(name, "3x劫掠兽", "赠送了甜甜圈!")
+                    burstItem("create:sweet_roll")
                     bossbar(name, 3*100)
                     spawnMobStack.push({count: 3,
                         id: "ravager", pos: [mobX, player.getZ()+12.0], name: name, color: "red", userid: nameToId(name), 
@@ -379,6 +397,7 @@ PlayerEvents.tick( event => {
                     break
                 case "pillager": // 掠夺者x20 - 蛋糕100g
                     client_pack(name, "20x掠夺者", "赠送了蛋糕!")
+                    burstItem("minecraft:cake")
                     bossbar(name, 20*24)
                     spawnMobStack.push({count: 20,
                         id: "pillager", pos: [mobX, player.getZ()+12.0], name: name, color: "red", userid: nameToId(name), 
@@ -388,6 +407,7 @@ PlayerEvents.tick( event => {
                     break
                 case "wither_skeleton": // 凋零骷髅x40 - 护目镜199g
                     client_pack(name, "40x凋零骷髅", "赠送了护目镜!")
+                    burstItem("create:goggles")
                     bossbar(name, 40*20)
                     spawnMobStack.push({count: 20,
                         id: "wither_skeleton", pos: [mobX, player.getZ()+12.0], name: name, color: "red", userid: nameToId(name), 
@@ -397,6 +417,7 @@ PlayerEvents.tick( event => {
                     break
                 case "zombie": // 僵尸x60 - 美西螈299g
                     client_pack(name, "60x僵尸", "赠送了美西螈!")
+                    burstItem("minecraft:axolotl_bucket")
                     bossbar(name, 60*20)
                     spawnMobStack.push({count: 30,
                         id: "zombie", pos: [mobX, player.getZ()+12.0], name: name, color: "red", userid: nameToId(name), 
@@ -406,6 +427,7 @@ PlayerEvents.tick( event => {
                     break
                 case "elder_guardian": // 远古守卫者x25 - 绿宝石块500g
                     client_pack(name, "25x远古守卫者", "赠送了绿宝石块!")
+                    burstItem("minecraft:emerald_block")
                     bossbar(name, 25*80)
                     spawnMobStack.push({count: 5,
                         id: "elder_guardian", pos: [mobX, player.getZ()+12.0], name: name, color: "red", userid: nameToId(name), 
@@ -415,6 +437,7 @@ PlayerEvents.tick( event => {
                     break
                 case "warden": // 监守者 - 金苹果699g
                     client_pack(name, "监守者", "赠送了金苹果!")
+                    burstItem("minecraft:enchanted_golden_apple")
                     bossbar(name, 500)
                     spawnMobStack.push({count: 1,
                         id: "warden", pos: [mobX, player.getZ()+12.0], name: name, color: "red", userid: nameToId(name), 
