@@ -336,7 +336,7 @@ PlayerEvents.tick( event => {
         smashLikeTrigger = 20 * (10 - 5 + 10*Math.random()) // 平均10秒检测一次
         // console.log("smashLikePrb: "+smashLikePrb)
     }
-    // giftPrb = 0.01
+    // giftPrb = 1.0
     const giftDict = [
         {value: "piglin",           weight: 60},
         {value: "creeper",          weight: 20},
@@ -488,13 +488,14 @@ function genName() {
     const number = Math.floor(Math.random() * 9000) + 1000; // 1000-9999
     const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
     const animal = animals[Math.floor(Math.random() * animals.length)];
-    return `${adj}${animal}_${number}`;
+    return `${adj}${animal}${number}`;
 }
 const pinyinMap = {'冷酷': 'lengku','迅捷': 'xunjie','快乐': 'kuaile','悠闲': 'youxian','懒惰': 'landuo','狡猾': 'jiaohua','聪明': 'congming','史诗': 'shishi','猫猫': 'maomao','狗狗': 'gougou','熊猫': 'xiongmao','狐狸': 'huli','考拉': 'kaola','老虎': 'laohu','灰狼': 'huilang','棕熊': 'zongxiong'};
 
 function nameToId(name) {
-    // 拆分，例如 冷酷猫猫_1234
-    const [full, number] = name.split('_');
+    // 拆分，例如 冷酷猫猫1234
+    const full = name.slice(0, 4);
+    const number = name.slice(5);
     // 从pinyinMap中找匹配
     let pinyinName = '';
     for (const key in pinyinMap) {
