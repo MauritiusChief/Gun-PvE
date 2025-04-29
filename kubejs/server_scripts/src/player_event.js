@@ -70,6 +70,7 @@ PlayerEvents.tick( event => {
         }
     }
 
+    // console.log("生成高速路部分")
     if (spawnHighway && player_z > zValueReached && player_z % 16 == 0) {
         zValueReached = player_z
         // event.server.tell("z值记录："+zValueReached)
@@ -180,16 +181,22 @@ PlayerEvents.tick( event => {
      * @param {Array} pos 生成的位置
      */
     function burstItem(item) {
+        let eyePos = player.eyePosition; // 获取玩家眼睛的位置
+        let lookAngle = player.lookAngle; // 获取玩家的视线角度（单位：弧度）
+        let offset = lookAngle.multiply(1, 1, 1); // 1米的偏移量
+        let targetPos = eyePos.add(offset); // 计算目标坐标
+        // level.spawnParticles('minecraft:flame', false, targetPos.x(), targetPos.y(), targetPos.z(), 0.0, 0.0, 0.0, 1, 0)
         for (let i=0; i<5; i++) {
             var itemEntity = level.createEntity("item")
             itemEntity.mergeNbt({Item:{id:item,Count:1},PickupDelay:-1,Age:5900})
-            itemEntity.setMotion(0.5*Math.random()-0.25, 0.35*Math.random()+0.25, 0.5*Math.random()-0.25)
-            itemEntity.setPosition(player.getX(), player.getY(), player.getZ())
+            itemEntity.setMotion(0.5*Math.random()-0.25, 0.25, 0.5*Math.random()-0.25)
+            itemEntity.setPosition(targetPos.x(), targetPos.y(), targetPos.z())
             itemEntity.spawn()
         }
     }
 
     /* 直播模拟 */
+    // console.log("直播模拟部分")
     let smashLikePrb = 2e-3 // 每个观看10秒内刷赞概率
     let giftPrb = 2e-3 // 每个粉丝10秒内送礼概率
     let newFollowerPrb = 0.002 // 每秒涨粉概率，10分钟涨粉概率0.7
@@ -230,6 +237,7 @@ PlayerEvents.tick( event => {
 
     /* 生成怪物部分 */
     let mobX = 1.5
+    // console.log("更新怪物生成X坐标和计时器")
     if (spawnMobs) {
         if (player_x_double < 3.5) {
             mobX = 1.5
@@ -250,6 +258,7 @@ PlayerEvents.tick( event => {
         giftTicker++
         // console.log(`${newFollowerTicker}, ${smashLikeTicker}, ${giftTicker}`)
     }
+    // console.log("生成怪物-评论模拟部分")
     if (spawnMobs) { // 评论模拟部分
         commentTicker++
         let msg = genMsg()
@@ -281,6 +290,7 @@ PlayerEvents.tick( event => {
         }
     } 
     // newFollowerPrb = 0.01
+    // console.log("生成怪物-模拟涨粉部分")
     if (spawnMobs && newFollowerTicker >= newFollowerTrigger) { // 模拟涨粉
         if (Math.random() < newFollowerPrb) {
             let followIncre = player.persistentData.getInt("followers")
@@ -308,6 +318,7 @@ PlayerEvents.tick( event => {
         // console.log(`${newFollowerTicker}, ${smashLikeTicker}, ${giftTicker}`)
     }
     // smashLikePrb = 0.01
+    // console.log("生成怪物-模拟刷赞部分")
     if (spawnMobs && smashLikeTicker >= smashLikeTrigger) { // 刷赞的怪物生成事件
         if (Math.random() < smashLikePrb) {
             var name = genName()
@@ -337,6 +348,7 @@ PlayerEvents.tick( event => {
         // console.log("smashLikePrb: "+smashLikePrb)
     }
     // giftPrb = 1.0
+    // console.log("生成怪物-模拟送礼部分")
     const giftDict = [
         {value: "piglin",           weight: 60},
         {value: "creeper",          weight: 20},
@@ -453,6 +465,7 @@ PlayerEvents.tick( event => {
     }
 
     // console.log(spawnMobStack)
+    // console.log("实际生成怪物（之前的都只是加入生成队列）")
     if (spawnMobStack.length > 0) {
         // while (spawnMobStack.length > 0 && spawnMobStack[0].count <= 0) {
         //     console.log("[⬜]移除 count 为 0 的项");
@@ -473,6 +486,7 @@ PlayerEvents.tick( event => {
             // console.log("[⬜]移除后队列长度"+spawnMobStack.length)
         }
     }
+    // console.log("给金币")
     if (goldPile > 0) {
         level.playSound(null, player.x, player.y, player.z, 'entity.experience_orb.pickup', 'ambient', 0.5, 0.75+0.1*Math.random())
         player.give('thermal:gold_coin')

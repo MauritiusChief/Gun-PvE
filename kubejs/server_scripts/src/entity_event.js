@@ -65,12 +65,11 @@ EntityEvents.hurt( event => {
 })
 
 EntityEvents.death( event => {
-    const entity = event.entity
     const server = event.server
     const level = event.level
 
     /* 死亡实体是玩家 */
-    if (entity.isPlayer()) {
+    if (event.entity.isPlayer()) {
         const player = event.entity
         let watching = player.persistentData.getInt("watching")
         if (watching > 10) watching -= Math.floor(10 * Math.random()) // 死亡导致掉粉
@@ -78,6 +77,7 @@ EntityEvents.death( event => {
         return
     }
 
+    const entity = event.entity
     let sender = entity.persistentData.getString("userid")
     let selfUUID = entity.getStringUuid()
     // console.log("death event, sender: "+sender)
