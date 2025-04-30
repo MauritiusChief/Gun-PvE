@@ -6,7 +6,7 @@
 
 StartupEvents.registry("item", event => {
     event.create("mre").displayName("军用口粮").food(food => {
-        food.hunger(8).saturation(1.5)
+        food.hunger(8).saturation(1)
         .eaten(ctx => {
             const player = ctx.player
             const mreCount = player.inventory.count('kubejs:mre');
