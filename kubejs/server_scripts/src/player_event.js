@@ -38,6 +38,8 @@ PlayerEvents.tick( event => {
     let spawnMobs = player.persistentData.getBoolean("spawn_mobs")
     let streamEnvo = player.persistentData.getBoolean("stream_envo")
 
+    // player.getName().getString()
+
     /**
      * 根据权重返回随机结果的函数
      * @param {Object} items 
@@ -221,6 +223,8 @@ PlayerEvents.tick( event => {
             } else if (watching >= 100) {
                 watching += Math.round(-1 + 1.8 * Math.random())
             } else if (watching >= 50) {
+                watching += Math.round(-1 + 1.9 * Math.random())
+            } else if (watching > 0) {
                 watching += Math.round(-1 + 2 * Math.random())
             } else {
                 watching += Math.round(3 * Math.random())

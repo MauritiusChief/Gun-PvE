@@ -70,10 +70,10 @@ EntityEvents.death( event => {
 
     /* 死亡实体是玩家 */
     if (event.entity.isPlayer()) {
-        const player = event.entity
-        let watching = player.persistentData.getInt("watching")
+        let watching = event.entity.persistentData.getInt("watching")
         if (watching > 10) watching -= Math.floor(10 * Math.random()) // 死亡导致掉粉
-        player.persistentData.putInt("watching", watching)
+        event.entity.persistentData.putInt("watching", watching)
+        Client.gui.setTitle(Component.of({"text": "你被观众击败了！", "color": "red", "bold": true}))
         return
     }
 
