@@ -37,6 +37,7 @@ PlayerEvents.tick( event => {
     let spawnHighway = player.persistentData.getBoolean("spawn_highway")
     let spawnMobs = player.persistentData.getBoolean("spawn_mobs")
     let streamEnvo = player.persistentData.getBoolean("stream_envo")
+    const spawnY = 63
 
     // player.getName().getString()
 
@@ -85,11 +86,11 @@ PlayerEvents.tick( event => {
         player.persistentData.putInt("z_reached", zValueReached)
 
         // let spawn_z = zValueReached
-        let spawn_z = zValueReached+16*3
+        let spawn_z = zValueReached+16*4
         // let spawn_z = zValueReached+16
 
-        server.runCommandSilent(`/place template gunpve:highway_cob 0 -61 ${spawn_z}`)
-        server.runCommandSilent(`/place template gunpve:highway 0 -61 ${spawn_z} none none 0.9`)
+        server.runCommandSilent(`/place template gunpve:highway_cob 0 ${spawnY-1} ${spawn_z}`)
+        server.runCommandSilent(`/place template gunpve:highway 0 ${spawnY-1} ${spawn_z} none none 0.9`)
         let spawnXlist = [2, 6, 15, 19]
         let spawnZlist = [0, 8]
         for (let x=0; x<spawnXlist.length; x++) {
@@ -131,10 +132,11 @@ PlayerEvents.tick( event => {
                         }
                         break
                 }
-                server.runCommandSilent(`/place template gunpve:${template} ${spawnXlist[x]+xShift} -60 ${spawn_z+spawnZlist[z]+zShift}${suffix}`)
+                server.runCommandSilent(`/place template gunpve:${template} ${spawnXlist[x]+xShift} ${spawnY} ${spawn_z+spawnZlist[z]+zShift}${suffix}`)
             }
         }
-        server.runCommandSilent(`/kill @e[type=item,nbt={Item:{id:"minecraft:cyan_terracotta"}}]`)
+        // server.runCommandSilent(`/kill @e[type=item,nbt={Item:{id:"minecraft:cyan_terracotta"}}]`)
+        server.runCommandSilent(`/kill @e[type=item]`)
     }
 
     /**
@@ -164,7 +166,7 @@ PlayerEvents.tick( event => {
             mob.getAttribute('generic.attack_damage').setBaseValue(attack_damage * (1 + (multi-1)*0.25));
             mob.mergeNbt({ScaleFactor: Math.sqrt(multi)})
         }
-        mob.setPosition(task.pos[0] - 0.1 + 0.2*Math.random(), -59.8, task.pos[1] - 0.1 + 0.2*Math.random())
+        mob.setPosition(task.pos[0] - 0.1 + 0.2*Math.random(), spawnY+0.2, task.pos[1] - 0.1 + 0.2*Math.random())
         // let test = player.getRotationVector()
         // mob.setRotation(test.x, test.y)
         mob.spawn();
@@ -351,7 +353,7 @@ PlayerEvents.tick( event => {
             // Item.of('minecraft:firework_rocket', 3, '{Fireworks:{Explosions:[{Colors:[I;11743532],Flicker:1b,Trail:1b,Type:1b,"forge:shape_type":"LARGE_BALL"}],Flight:1b}}')
             let fireWork = level.createEntity("firework_rocket")
             fireWork.mergeNbt(`{FireworksItem:{Count:1b,id:"minecraft:firework_rocket",tag:{Fireworks:{Explosions:[{Colors:[I;11743532],Flicker:1b,Trail:1b,Type:1b,"forge:shape_type":"LARGE_BALL"}],Flight:1b}}}, LifeTime:20}`)
-            fireWork.setPosition(mobX, -59, player.getZ()+12.0)
+            fireWork.setPosition(mobX, spawnY+1, player.getZ()+12.0)
             fireWork.spawn()
 
             spawnMobStack.push({count: 2,
@@ -375,7 +377,7 @@ PlayerEvents.tick( event => {
             var name = genName()
             if (Math.random() > 0.2) { // 200赞事件-猪灵x2
                 client_pack(name, "2x猪灵", "点了200个赞!")
-                level.spawnParticles('minecraft:lava', true, mobX, -59, player.getZ()+12.0, 0.2, 0.1, 0.2, 20, 50)
+                level.spawnParticles('minecraft:lava', true, mobX, spawnY+1, player.getZ()+12.0, 0.2, 0.1, 0.2, 20, 50)
                 spawnMobStack.push({count: 2,
                     id: "piglin", pos: [mobX, player.getZ()+12.0], name: name, color: "red", userid: nameToId(name), 
                     handItem: "crossbow", extraNbt: {IsImmuneToZombification: true},
@@ -383,7 +385,7 @@ PlayerEvents.tick( event => {
                 watchingStack.push(Math.ceil(2.00 * Math.random()))
             } else { // 1000赞事件-闪电苦力怕x3
                 client_pack(name, "3x闪电苦力怕", "点了1000个赞!")
-                level.spawnParticles('minecraft:lava', true, mobX, -59, player.getZ()+12.0, 0.2, 0.1, 0.2, 20, 50)
+                level.spawnParticles('minecraft:lava', true, mobX, spawnY+1, player.getZ()+12.0, 0.2, 0.1, 0.2, 20, 50)
                 spawnMobStack.push({count: 3,
                     id: "creeper", pos: [mobX, player.getZ()+8.0], name: name, color: "red", 
                     effects: [{id: "resistance", lv: "5", t: "5"}]
