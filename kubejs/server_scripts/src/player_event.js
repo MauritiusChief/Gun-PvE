@@ -59,18 +59,24 @@ PlayerEvents.tick( event => {
     }
 
     /* 生成地图部分 */
-    function decideTemplate() {
-        let temp_decider = Math.random()
-        if (temp_decider > 3.0/4) {
-            return "barrier"
-        } else if (temp_decider > 2.0/4) {
-            return "burn_car"
-        } else if (temp_decider > 1.0/4) {
-            return "crates"
-        } else {
-            return "car"
-        }
-    }
+    const templateDict = [
+        {value: "barrier",  weight: 3},
+        {value: "burn_car", weight: 3},
+        {value: "crates",   weight: 1},
+        {value: "car",      weight: 2},
+    ]
+    const randomSuffixs = [
+        {value: " 180 none 0.9",        weight: 1},
+        {value: " none none 0.9",       weight: 1},
+        {value: " 180 front_back 0.9",  weight: 1},
+        {value: " none front_back 0.9", weight: 1},
+        {value: " 180 left_right 0.9",  weight: 1},
+        {value: " none left_right 0.9", weight: 1},
+    ]
+    const carSuffixs = [
+        {value: " 180 none 0.9",  weight: 1},
+        {value: " none none 0.9", weight: 4},
+    ]
 
     // console.log("生成高速路部分")
     if (spawnHighway && player_z > zValueReached && player_z % 16 == 0) {
@@ -78,23 +84,56 @@ PlayerEvents.tick( event => {
         // event.server.tell("z值记录："+zValueReached)
         player.persistentData.putInt("z_reached", zValueReached)
 
+        // let spawn_z = zValueReached
         let spawn_z = zValueReached+16*3
         // let spawn_z = zValueReached+16
 
         server.runCommandSilent(`/place template gunpve:highway_cob 0 -61 ${spawn_z}`)
         server.runCommandSilent(`/place template gunpve:highway 0 -61 ${spawn_z} none none 0.9`)
-        let spawnRight = [[2, 0], [6, 0], [2, 8], [6, 8]]
-        let spawnLeft = [[21, 15], [17, 15], [21, 7], [17, 7]]
-        spawnRight.forEach(coor => {
-            if (Math.random() < 1.0/4) {
-                server.runCommandSilent(`/place template gunpve:${decideTemplate()} ${coor[0]} -60 ${spawn_z+coor[1]}`)
+        let spawnXlist = [2, 6, 15, 19]
+        let spawnZlist = [0, 8]
+        for (let x=0; x<spawnXlist.length; x++) {
+            for (let z=0; z<spawnZlist.length; z++) {
+                if (Math.random() > 1.0/4) {continue}
+                let template = wrad(templateDict)
+                let suffix = ""
+                let xShift = 0
+                let zShift = 0
+                switch (template) {
+                    case "car":
+                    case "burn_car":
+                        suffix = wrad(carSuffixs)
+                        switch (suffix) {
+                            case " 180 none 0.9":
+                                xShift = 2; zShift = 7;
+                                break
+                            default:
+                                break
+                        }
+                        break
+                    case "barrier":
+                    case "crates":
+                        suffix = wrad(randomSuffixs)
+                        switch (suffix) {
+                            case " none left_right 0.9":
+                            case " 180 front_back 0.9":
+                                zShift = 7;
+                                break
+                            case " none front_back 0.9":
+                            case " 180 left_right 0.9":
+                                xShift = 2;
+                                break
+                            case " 180 none 0.9":
+                                xShift = 2; zShift = 7;
+                                break
+                            default:
+                                break
+                        }
+                        break
+                }
+                server.runCommandSilent(`/place template gunpve:${template} ${spawnXlist[x]+xShift} -60 ${spawn_z+spawnZlist[z]+zShift}${suffix}`)
             }
-        })
-        spawnLeft.forEach(coor => {
-            if (Math.random() < 1.0/4) {
-                server.runCommandSilent(`/place template gunpve:${decideTemplate()} ${coor[0]} -60 ${spawn_z+coor[1]} 180`)
-            }
-        })
+        }
         server.runCommandSilent(`/kill @e[type=item,nbt={Item:{id:"minecraft:cyan_terracotta"}}]`)
     }
 
@@ -239,23 +278,31 @@ PlayerEvents.tick( event => {
         player.persistentData.putInt("followers", followers)
     }
 
+    /**
+     * 从输入的可选X坐标中找到离玩家最近的
+     * @param {*} x 玩家的X坐标
+     * @param {*} arr 备选的X坐标，同时也是几条车道的标记线
+     * @returns 怪物应该生成的X坐标
+     */
+    function findClosest(x, arr) {
+        // 初始化变量，记录最小差值和对应的数字
+        let closest = arr[0];
+        let minDiff = Math.abs(x - closest);
+        // 遍历数组，查找最接近 a 的数字
+        for (let i = 1; i < arr.length; i++) {
+            let diff = Math.abs(x - arr[i]);
+            if (diff < minDiff) {
+                closest = arr[i];
+                minDiff = diff;
+            }
+        }
+        return closest;
+    }
     /* 生成怪物部分 */
     let mobX = 1.5
     // console.log("更新怪物生成X坐标和计时器")
     if (spawnMobs) {
-        if (player_x_double < 3.5) {
-            mobX = 1.5
-        } else if (player_x_double < 7.5) {
-            mobX = 5.5
-        } else if (player_x_double < 12) {
-            mobX = 9.5
-        } else if (player_x_double < 16.5) {
-            mobX = 14.5
-        } else if (player_x_double < 20.5) {
-            mobX = 18.5
-        } else {
-            mobX = 22.5
-        }
+        mobX = findClosest(player_x_double, [1.5, 5.5, 9.5, 14.5, 18.5, 22.5])
         // 计时器更新也用此处
         newFollowerTicker++
         smashLikeTicker++
