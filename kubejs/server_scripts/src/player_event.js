@@ -554,6 +554,10 @@ PlayerEvents.tick( event => {
         player.give('thermal:gold_coin')
         goldPile--;
     }
+    if (player.inventory.count('thermal:gold_coin') >= 64*9) {
+        server.runCommandSilent(`/clear ${player.getName().getString()} thermal:gold_coin ${64*9}`)
+        player.give('thermal:netherite_coin')
+    }
 
     
 })

@@ -42,13 +42,16 @@ let reset = (player) => {
 }
 
 let offline = (player) => {
+	let server = player.getLevel().getServer()
 	player.persistentData.putInt("watching", 0)
 	player.persistentData.putBoolean("spawn_highway", false)
 	player.persistentData.putBoolean("spawn_mobs", false)
 	player.persistentData.putBoolean("stream_envo", false)
-	let coinCount = player.getInventory().countItem('thermal:gold_coin')
-	player.setStatusMessage(`检测到金币 ${coinCount} 个`);
+	let goldCoinCount = player.getInventory().countItem('thermal:gold_coin')
+	let netheriteCoinCount = player.getInventory().countItem('thermal:netherite_coin')
+	player.setStatusMessage(`检测到金币 ${goldCoinCount + netheriteCoinCount*(64*9)} 个`);
 	server.runCommandSilent(`/clear ${player.getName().getString()} thermal:gold_coin`)
+	server.runCommandSilent(`/clear ${player.getName().getString()} thermal:netherite_coin`)
 	return 1;
 }
 
@@ -81,4 +84,5 @@ let equip = (player) => {
     equipments.forEach( item => {
         player.give(item)
     })
+	return 1;
 }
