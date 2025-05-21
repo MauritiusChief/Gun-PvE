@@ -93,7 +93,7 @@ function placeTemplate(event, candidateKey, occupiedChunks) {
 
     const sizes = [
         [1, 1],
-        // [1, 2], [2, 1],
+        [1, 2], [2, 1],
         // [2, 2],
         // [2, 3], [3, 2]
     ]
@@ -135,7 +135,7 @@ function placeTemplate(event, candidateKey, occupiedChunks) {
                     global.kubejs.UtilsJS.parseInt(cx, 0), 
                     global.kubejs.UtilsJS.parseInt(cz, 0)
                 ]
-                // server.persistentData.putIntArray(`marked_${cx}_${cz}`, placedChunk)
+                server.persistentData.putIntArray(`marked_${cx}_${cz}`, placedChunk)
             }
 
             // chunksToOccupy = [[3, 5], [2, 6], [2, 4], [5, 4], [2, 4]];
@@ -184,6 +184,14 @@ function wrad(items) {
     }
 }
 
+const template1x2 = [
+    {value: "gunrog:test1x2", weight: 1},
+]
+const template1x1 = [
+    {value: "gunrog:test1x1", weight: 1},
+    {value: "gunrog:testroom", weight: 1},
+]
+
 function randDirePlace(server, dx, dz, chunkToPlace, templatePlaceY) {
     console.log(`基准点 [${chunkToPlace[0]*16}, ${chunkToPlace[1]*16}]`)
     const rotation = {
@@ -207,6 +215,13 @@ function randDirePlace(server, dx, dz, chunkToPlace, templatePlaceY) {
         {value: rotation.r3, weight: 1},
     ]
 
+    let template = ""
+    if (dx == 1 && dz == 1) {
+        template = wrad(template1x1)
+    } else if ((dx == 2 && dz == 1) || (dx == 1 && dz == 2)) {
+        template = wrad(template1x2)
+    }
+
     let value = {}
     if (dx == dz) {
         console.log("触发方形放置")
@@ -220,7 +235,7 @@ function randDirePlace(server, dx, dz, chunkToPlace, templatePlaceY) {
     }
     console.log(`放置类型 "${value.r}", 位置 [${value.x}, ${value.z}]`)
 
-    const command = `/place template gunrog:testroom ${value.x} ${templatePlaceY} ${value.z} ${value.r}`
+    const command = `/place template ${template} ${value.x} ${templatePlaceY} ${value.z} ${value.r}`
     console.log(command)
     server.runCommandSilent(command)
 }
