@@ -3,8 +3,10 @@
 PlayerEvents.tick(event => {
     const player = event.player
     const server = event.server
+    const level = event.level
     const easyMark = player.persistentData.getBoolean("easyMark")
-    const pos = {x: player.getBlockX(), z: player.getBlockZ()}
+    const cleanDoor = player.persistentData.getBoolean("cleanDoor")
+    const pos = {x: player.getBlockX(), y: player.getBlockY(), z: player.getBlockZ()}
     if (easyMark) {
         let targetChunk = [
             global.kubejs.UtilsJS.parseInt(Math.floor(pos.x/16), 0), 
@@ -12,13 +14,29 @@ PlayerEvents.tick(event => {
         ]
         server.persistentData.putIntArray(`marked_${targetChunk[0]}_${targetChunk[1]}`,targetChunk)
     }
+    const block = level.getBlock(pos.x, pos.y, pos.z)
+    console.log(block.id)
+    if (cleanDoor && block.id.includes("minecraft:oak_door")) {
+        // console.log("触发清除门")
+        block.set("air")
+    }
     // 生成粒子效果
     let allKeys = server.persistentData.getAllKeys()
     allKeys.forEach( key => {
-        // console.log(key)
-        let array = server.persistentData.getIntArray(key)
-        // console.log(array)
-        server.runCommandSilent(`/particle minecraft:dust 0.5 0.1 0.2 1 ${array[0]*16+7} ${player.getY()+1.5} ${array[1]*16+7} 0.1 0.1 0.1 1 1`)
+        if (key.startsWith("marked_")) {
+            let array = server.persistentData.getIntArray(key)
+            server.runCommandSilent(`/particle minecraft:dust 0.5 0.1 0.2 1 ${array[0]*16+7} ${player.getY()+1.5} ${array[1]*16+7} 0.1 0.1 0.1 1 1`)
+        }
+        if (
+            key.startsWith("grouped_") && 
+            key.endsWith(`${parseInt(Math.floor(pos.x/16), 0)}_${parseInt(Math.floor(pos.z/16), 0)}`)
+        ) { // 高亮所处的组
+            let array = server.persistentData.getIntArray(key)
+            for (let i=0; i<array.length; i+=2) {
+                server.runCommandSilent(`/particle minecraft:dust 0.1 0.8 0.2 1 ${array[i]*16+7} ${player.getY()+2.0} ${array[i+1]*16+7} 0.1 0.1 0.1 1 1`)
+            }
+
+        }
     })
 })
 
@@ -136,6 +154,14 @@ function placeTemplate(event, candidateKey, occupiedChunks) {
                     global.kubejs.UtilsJS.parseInt(cz, 0)
                 ]
                 server.persistentData.putIntArray(`marked_${cx}_${cz}`, placedChunk)
+
+                let groupChunks = []
+                for (const [bx, bz] of chunksToOccupy) {
+                    console.log(`  [${parseInt(cx, 0)}, ${parseInt(cz, 0)}] 拥有同组区块：[${parseInt(bx, 0)}, ${parseInt(bz, 0)}]`)
+                    groupChunks.push(global.kubejs.UtilsJS.parseInt(bx, 0))
+                    groupChunks.push(global.kubejs.UtilsJS.parseInt(bz, 0)) // 读取时应保证也是两个一组地读取
+                }
+                server.persistentData.putIntArray(`grouped_${cx}_${cz}`, groupChunks)
             }
 
             // chunksToOccupy = [[3, 5], [2, 6], [2, 4], [5, 4], [2, 4]];
@@ -144,7 +170,7 @@ function placeTemplate(event, candidateKey, occupiedChunks) {
             let chunkToPlace = chunksToOccupy.find(c => c[0]==minX && c[1]==minZ)
             console.log(`应当放置的区块 [${chunkToPlace[0]}, ${chunkToPlace[1]}]`)
 
-            randDirePlace(server, dx, dz, chunkToPlace, templatePlaceY)
+            randDirePlace(server, dx, dz, chunkToPlace)
             // server.runCommandSilent(`/place template gunrog:testroom ${chunkToPlace[0]*16} ${templatePlaceY} ${chunkToPlace[1]*16}`)
 
             // 放置门
@@ -192,7 +218,7 @@ const template1x1 = [
     {value: "gunrog:testroom", weight: 1},
 ]
 
-function randDirePlace(server, dx, dz, chunkToPlace, templatePlaceY) {
+function randDirePlace(server, dx, dz, chunkToPlace) {
     console.log(`基准点 [${chunkToPlace[0]*16}, ${chunkToPlace[1]*16}]`)
     const rotation = {
         r0: {r:"none none", x:chunkToPlace[0]*16, z:chunkToPlace[1]*16},
