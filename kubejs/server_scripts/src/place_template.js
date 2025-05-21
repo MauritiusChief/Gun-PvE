@@ -107,7 +107,7 @@ function placeTemplate(event, candidateKey, occupiedChunks) {
         let canPlace = true
 
         for (const [facingX, facingZ] of corners) {
-            console.log(`选中的角方向：${facingX}, ${facingZ}`)
+            console.log(`  选中的角方向：${facingX}, ${facingZ}`)
             canPlace = true
             for (let ox = 0; ox < dx; ox++) {
                 for (let oz = 0; oz < dz; oz++) {
@@ -118,7 +118,7 @@ function placeTemplate(event, candidateKey, occupiedChunks) {
                         chunksToOccupy = []
                         break
                     }
-                    console.log(`将 [${parseInt(cx, 0)}, ${parseInt(cz, 0)}] 临时加入chunksToOccupy`)
+                    console.log(`    将 [${parseInt(cx, 0)}, ${parseInt(cz, 0)}] 临时加入chunksToOccupy`)
                     chunksToOccupy.push([cx, cz])
                 }
                 if (!canPlace) break // 任一一个chunk不可放置就检测不通过
@@ -130,12 +130,12 @@ function placeTemplate(event, candidateKey, occupiedChunks) {
         // 找到了合适的尺寸
         if (canPlace) {
             for (const [cx, cz] of chunksToOccupy) {
-                server.tell(`将占用 [${parseInt(cx, 0)}, ${parseInt(cz, 0)}]`)
+                server.tell(`  将占用 [${parseInt(cx, 0)}, ${parseInt(cz, 0)}]`)
                 let placedChunk = [
                     global.kubejs.UtilsJS.parseInt(cx, 0), 
                     global.kubejs.UtilsJS.parseInt(cz, 0)
                 ]
-                server.persistentData.putIntArray(`marked_${cx}_${cz}`, placedChunk)
+                // server.persistentData.putIntArray(`marked_${cx}_${cz}`, placedChunk)
             }
 
             // chunksToOccupy = [[3, 5], [2, 6], [2, 4], [5, 4], [2, 4]];
@@ -144,7 +144,8 @@ function placeTemplate(event, candidateKey, occupiedChunks) {
             let chunkToPlace = chunksToOccupy.find(c => c[0]==minX && c[1]==minZ)
             console.log(`应当放置的区块 [${chunkToPlace[0]}, ${chunkToPlace[1]}]`)
 
-            server.runCommandSilent(`/place template gunrog:testroom ${chunkToPlace[0]*16} ${templatePlaceY} ${chunkToPlace[1]*16}`)
+            randDirePlace(server, dx, dz, chunkToPlace, templatePlaceY)
+            // server.runCommandSilent(`/place template gunrog:testroom ${chunkToPlace[0]*16} ${templatePlaceY} ${chunkToPlace[1]*16}`)
 
             // 放置门
             for (let i = 0; i < dx; i++) {
@@ -182,3 +183,45 @@ function wrad(items) {
         }
     }
 }
+
+function randDirePlace(server, dx, dz, chunkToPlace, templatePlaceY) {
+    console.log(`基准点 [${chunkToPlace[0]*16}, ${chunkToPlace[1]*16}]`)
+    const rotation = {
+        r0: {r:"none none", x:chunkToPlace[0]*16, z:chunkToPlace[1]*16},
+        r1: {r:"counterclockwise_90 none", x:chunkToPlace[0]*16, z:(chunkToPlace[1]+dz)*16-2},
+        r2: {r:"180 none", x:(chunkToPlace[0]+dx)*16-2, z:(chunkToPlace[1]+dz)*16-2},
+        r3: {r:"clockwise_90 none", x:(chunkToPlace[0]+dx)*16-2, z:chunkToPlace[1]*16}
+    }
+    const randomSquare = [
+        {value: rotation.r0, weight: 1},
+        {value: rotation.r1, weight: 1},
+        {value: rotation.r2, weight: 1},
+        {value: rotation.r3, weight: 1},
+    ]
+    const randomShortByLong = [
+        {value: rotation.r0, weight: 1},
+        {value: rotation.r2, weight: 1},
+    ]
+    const randomLongByShort = [ // 默认只存储“短x长”（比如1x2)类型的template，要横着放那就再旋转
+        {value: rotation.r1, weight: 1},
+        {value: rotation.r3, weight: 1},
+    ]
+
+    let value = {}
+    if (dx == dz) {
+        console.log("触发方形放置")
+        value = wrad(randomSquare)
+    } else if (dx < dz) {
+        console.log("触发短x长形放置")
+        value = wrad(randomShortByLong)
+    } else {
+        console.log("触发长x短形放置")
+        value = wrad(randomLongByShort)
+    }
+    console.log(`放置类型 "${value.r}", 位置 [${value.x}, ${value.z}]`)
+
+    const command = `/place template gunrog:testroom ${value.x} ${templatePlaceY} ${value.z} ${value.r}`
+    console.log(command)
+    server.runCommandSilent(command)
+}
+
