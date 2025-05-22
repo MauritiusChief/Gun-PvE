@@ -551,13 +551,13 @@ PlayerEvents.tick( event => {
     // console.log("给金币")
     if (goldPile > 0) {
         level.playSound(null, player.x, player.y, player.z, 'entity.experience_orb.pickup', 'ambient', 0.5, 0.75+0.1*Math.random())
-        player.give('thermal:gold_coin')
+        // player.give('thermal:gold_coin')
         goldPile--;
     }
-    if (player.inventory.count('thermal:gold_coin') >= 64*9) {
-        server.runCommandSilent(`/clear ${player.getName().getString()} thermal:gold_coin ${64*9}`)
-        player.give('thermal:netherite_coin')
-    }
+    // if (player.inventory.count('thermal:gold_coin') >= 64*9) {
+    //     server.runCommandSilent(`/clear ${player.getName().getString()} thermal:gold_coin ${64*9}`)
+    //     player.give('thermal:netherite_coin')
+    // }
 
     
 })

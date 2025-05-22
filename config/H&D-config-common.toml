@@ -1,0 +1,37 @@
+
+["physical alienation/modid:name"]
+	#for item:The probability is 1/100
+	use_to_increase_the_degree_of_organic_alienation = "placeholder"
+	#for item:The probability is 1/20
+	use_to_decrease_the_degree_of_organic_alienation = "placeholder"
+	#for entity:The probability is 1/50
+	hurt_to_increase_the_degree_of_organic_alienation = "placeholder"
+
+["health system"]
+	#Is the health system enabled
+	health_enabled = true
+	#Is the moisture content enabled
+	moisture_enabled = true
+	#The larger the value, the slower the nutrient value drops
+	"Nutrient value drop rate" = 10.0
+
+[perception]
+	#Valid value:sustain,key
+	Perception = "sustain"
+
+[disease]
+	"Infection of the Upper Respiratory Tract" = true
+	Septicemia = true
+	Tetanus = true
+	AIDS = true
+	Crismon = true
+	Sybok = true
+	"Foreign Body Infection" = true
+	PTSD = true
+	Endersion = true
+	"Bone dislocation" = true
+
+[ptsd]
+	#How many times after death triggers PTSD. value:0~40
+	trigger_value = 20.0
+

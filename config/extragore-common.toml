@@ -7,7 +7,7 @@
 	#Enable blood particle effect for both players and mobs, overriding other settings.
 	Both = true
 	#Entity list which will be blacklisted from getting blood particle effect.
-	Blacklisted_Entity = ["minecraft:skeleton", "minecraft:skeleton_horse", "minecraft:stray", "minecraft:wither_skeleton"]
+	Blacklisted_Entity = ["minecraft:skeleton", "minecraft:skeleton_horse", "minecraft:stray", "minecraft:wither_skeleton", "health_and_disease:chair", "quark:forgotten"]
 
 ["Blood Particle Configuration"]
 	#Max size value of the particle when hitting small entities.

@@ -47,11 +47,11 @@ let offline = (player) => {
 	player.persistentData.putBoolean("spawn_highway", false)
 	player.persistentData.putBoolean("spawn_mobs", false)
 	player.persistentData.putBoolean("stream_envo", false)
-	let goldCoinCount = player.getInventory().countItem('thermal:gold_coin')
-	let netheriteCoinCount = player.getInventory().countItem('thermal:netherite_coin')
-	player.setStatusMessage(`检测到金币 ${goldCoinCount + netheriteCoinCount*(64*9)} 个`);
-	server.runCommandSilent(`/clear ${player.getName().getString()} thermal:gold_coin`)
-	server.runCommandSilent(`/clear ${player.getName().getString()} thermal:netherite_coin`)
+	// let goldCoinCount = player.getInventory().countItem('thermal:gold_coin')
+	// let netheriteCoinCount = player.getInventory().countItem('thermal:netherite_coin')
+	// player.setStatusMessage(`检测到金币 ${goldCoinCount + netheriteCoinCount*(64*9)} 个`);
+	// server.runCommandSilent(`/clear ${player.getName().getString()} thermal:gold_coin`)
+	// server.runCommandSilent(`/clear ${player.getName().getString()} thermal:netherite_coin`)
 	return 1;
 }
 

@@ -48,89 +48,112 @@ behavior = "Magic"
 weight = "Light"
 state = "Liquid"
 color = "255,255,255"
-entities = ["minecraft:ghast", "minecraft:snow_golem", "minecraft:vex", "minecraft:allay"]
+entities = ["minecraft:ghast", "minecraft:snow_golem", "minecraft:vex", "minecraft:allay", "quark:wraith"]
 
 ["Gray Group"]
 behavior = "None"
 weight = "Heavy"
 state = "Solid"
 color = "224,224,224"
-entities = ["minecraft:iron_golem", "minecraft:ravager"]
+entities = ["minecraft:iron_golem", "minecraft:ravager", "quark:stoneling"]
 
 ["Green Group"]
 behavior = "Stuck"
 weight = "Light"
 state = "Liquid"
 color = "50,205,50"
-entities = ["minecraft:cave_spider", "minecraft:creeper", "minecraft:slime", "minecraft:spider", "minecraft:silverfish", "minecraft:witch", "minecraft:bee"]
+entities = ["minecraft:cave_spider", "minecraft:creeper", "minecraft:slime", "minecraft:spider", "minecraft:silverfish", "minecraft:witch", "minecraft:bee","apocalypsenow:cockroach"]
 
 ["Yellow Group"]
 behavior = "Stuck"
 weight = "Heavy"
 state = "Solid"
 color = "255,190,0"
-entities = ["minecraft:blaze", "minecraft:magma_cube", "minecraft:strider"]
+entities = ["minecraft:blaze", "minecraft:magma_cube", "minecraft:strider", "quark:foxhound"]
 
 ["Blue Group"]
 behavior = "Stuck"
 weight = "Light"
 state = "Liquid"
 color = "0,0,139"
-entities = ["minecraft:squid", "minecraft:elder_guardian", "minecraft:guardian", "minecraft:glow_squid", "minecraft:warden"]
+entities = ["minecraft:squid", "minecraft:elder_guardian", "minecraft:guardian", "minecraft:glow_squid", "minecraft:warden", "quark:crab"]
 
 ["Dark Red Group"]
 behavior = "Stuck"
 weight = "Light"
 state = "Liquid"
 color = "139,0,0"
-entities = ["minecraft:giant", "minecraft:zombified_piglin", "minecraft:drowned", "minecraft:husk", "minecraft:zombie_horse", "minecraft:zombie", "minecraft:zombie_villager", "minecraft:zoglin"]
+entities = ["minecraft:giant", "minecraft:zombified_piglin", "minecraft:drowned", "minecraft:husk", "minecraft:zombie_horse", "minecraft:zombie", "minecraft:zombie_villager", "minecraft:zoglin", "apocalypsenow:horde_2", "apocalypsenow:horde_3", "apocalypsenow:horde_4", "apocalypsenow:horde_5", "apocalypsenow:horde_1", "apocalypsenow:walker_29", "apocalypsenow:walker_28", "apocalypsenow:walker_27", "apocalypsenow:walker_26", "apocalypsenow:walker_25", "apocalypsenow:walker_24", "apocalypsenow:walker_23", "apocalypsenow:walker_22", "apocalypsenow:walker_21", "apocalypsenow:walker_20", "apocalypsenow:walker_3", "apocalypsenow:walker_2", "apocalypsenow:walker_5", "apocalypsenow:walker_4", "apocalypsenow:walker_1", "apocalypsenow:walker_7", "apocalypsenow:walker_6", "apocalypsenow:walker_9", "apocalypsenow:walker_8", "apocalypsenow:walker_33", "apocalypsenow:walker_32", "apocalypsenow:walker_31", "apocalypsenow:walker_30", "apocalypsenow:walker_19", "apocalypsenow:walker_18", "apocalypsenow:walker_17", "apocalypsenow:walker_16", "apocalypsenow:walker_15", "apocalypsenow:walker_14", "apocalypsenow:walker_13", "apocalypsenow:walker_12", "apocalypsenow:walker_11", "apocalypsenow:walker_10", "apocalypsenow:crawler_3", "apocalypsenow:crawler_2", "apocalypsenow:crawler_4", "apocalypsenow:crawler_1", "apocalypsenow:runner_39", "apocalypsenow:runner_38", "apocalypsenow:runner_37", "apocalypsenow:runner_36", "apocalypsenow:runner_35", "apocalypsenow:runner_34", "apocalypsenow:runner_49", "apocalypsenow:runner_48", "apocalypsenow:runner_43", "apocalypsenow:runner_42", "apocalypsenow:runner_41", "apocalypsenow:runner_40", "apocalypsenow:runner_47", "apocalypsenow:runner_46", "apocalypsenow:runner_45", "apocalypsenow:cannibal", "apocalypsenow:runner_44", "apocalypsenow:runner_50", "apocalypsenow:runner_54", "apocalypsenow:runner_53", "apocalypsenow:runner_52", "apocalypsenow:runner_51", "apocalypsenow:runner_57", "apocalypsenow:runner_56", "apocalypsenow:runner_55"]
 
 # Auto generated red color group - do not edit. Use this as reference for unused entity IDs.
 "255,0,0" = [
-    "minecraft:hoglin",
     "minecraft:trader_llama",
+    "apocalypsenow:soldiers_02",
     "minecraft:horse",
-    "minecraft:polar_bear",
-    "thermal:blitz",
     "minecraft:llama",
-    "minecraft:pig",
-    "minecraft:turtle",
-    "minecraft:sheep",
     "minecraft:tadpole",
-    "minecraft:goat",
     "minecraft:dolphin",
-    "minecraft:cod",
-    "minecraft:skeleton",
+    "apocalypsenow:rat",
+    "apocalypsenow:hunter",
     "minecraft:donkey",
-    "minecraft:skeleton_horse",
-    "minecraft:cow",
     "minecraft:piglin_brute",
     "minecraft:illusioner",
-    "minecraft:salmon",
+    "quark:toretoise",
+    "apocalypsenow:military_medic",
     "minecraft:mooshroom",
     "minecraft:stray",
-    "minecraft:rabbit",
     "minecraft:axolotl",
-    "minecraft:pillager",
     "minecraft:parrot",
-    "thermal:basalz",
-    "thermal:blizz",
-    "minecraft:bat",
     "minecraft:wandering_trader",
     "minecraft:wither_skeleton",
     "minecraft:frog",
-    "minecraft:piglin",
     "minecraft:mule",
-    "minecraft:sniffer",
     "minecraft:vindicator",
-    "minecraft:camel",
+    "apocalypsenow:soldiers",
     "minecraft:evoker",
-    "minecraft:cat",
     "minecraft:pufferfish",
+    "quark:forgotten",
     "minecraft:fox",
+    "minecraft:chicken",
+    "apocalypsenow:looter_3",
+    "apocalypsenow:looter_4",
+    "apocalypsenow:looter_5",
+    "apocalypsenow:looter_1",
+    "minecraft:hoglin",
+    "apocalypsenow:looter_2",
+    "minecraft:polar_bear",
+    "minecraft:pig",
+    "minecraft:turtle",
+    "minecraft:sheep",
+    "minecraft:goat",
+    "minecraft:cod",
+    "minecraft:skeleton",
+    "minecraft:skeleton_horse",
+    "minecraft:cow",
+    "quark:shiba",
+    "apocalypsenow:survivor_5",
+    "apocalypsenow:survivor_4",
+    "apocalypsenow:survivor_3",
+    "apocalypsenow:survivor_2",
+    "apocalypsenow:survivor_1",
+    "minecraft:salmon",
+    "apocalypsenow:survivor_9",
+    "apocalypsenow:survivor_8",
+    "apocalypsenow:survivor_7",
+    "apocalypsenow:survivor_6",
+    "minecraft:rabbit",
+    "minecraft:pillager",
+    "minecraft:bat",
+    "minecraft:piglin",
+    "apocalypsenow:survivor_10",
+    "apocalypsenow:military_02",
+    "apocalypsenow:military_01",
+    "minecraft:sniffer",
+    "health_and_disease:chair",
+    "minecraft:camel",
+    "minecraft:cat",
     "minecraft:tropical_fish",
     "minecraft:ocelot",
-    "minecraft:chicken",
     "minecraft:wolf",
     "minecraft:panda"
 ]
