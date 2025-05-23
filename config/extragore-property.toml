@@ -126,6 +126,7 @@ entities = ["minecraft:giant", "minecraft:zombified_piglin", "minecraft:drowned"
     "minecraft:turtle",
     "minecraft:sheep",
     "minecraft:goat",
+    "cold_sweat:chameleon",
     "minecraft:cod",
     "minecraft:skeleton",
     "minecraft:skeleton_horse",

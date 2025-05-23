@@ -15,7 +15,7 @@ PlayerEvents.tick(event => {
         server.persistentData.putIntArray(`marked_${targetChunk[0]}_${targetChunk[1]}`,targetChunk)
     }
     const block = level.getBlock(pos.x, pos.y, pos.z)
-    console.log(block.id)
+    // console.log(block.id)
     if (cleanDoor && block.id.includes("minecraft:oak_door")) {
         // console.log("触发清除门")
         block.set("air")
