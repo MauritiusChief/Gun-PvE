@@ -46,7 +46,7 @@ PlayerEvents.inventoryOpened( event => {
     // }
     // player.inventory.insertItem('tactical_aid:aggressivenessinjector', false)
 
-    console.log(playerNbt)
+    // console.log(playerNbt)
 
     // player.mergeNbt(playerNbt)
 })

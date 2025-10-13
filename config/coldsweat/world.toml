@@ -70,7 +70,7 @@
 	"Thermal Source Strength" = 0.75
 	#List of additional blocks that thermal sources can spread through
 	#Use this list if thermal sources aren't spreading through particular blocks that they should
-	"Thermal Source Spread Whitelist" = ["cold_sweat:hearth_bottom", "minecraft:iron_bars", "#minecraft:leaves", "create:encased_fluid_pipe"]
+	"Thermal Source Spread Whitelist" = ["cold_sweat:hearth_bottom", "minecraft:iron_bars", "minecraft:jungle_leaves", "minecraft:oak_leaves", "minecraft:spruce_leaves", "minecraft:dark_oak_leaves", "minecraft:acacia_leaves", "minecraft:birch_leaves", "minecraft:azalea_leaves", "minecraft:flowering_azalea_leaves", "minecraft:mangrove_leaves", "minecraft:cherry_leaves", "quark:blue_blossom_leaves", "quark:lavender_blossom_leaves", "quark:orange_blossom_leaves", "quark:yellow_blossom_leaves", "quark:red_blossom_leaves", "quark:ancient_leaves", "create:encased_fluid_pipe"]
 	#List of additional blocks that thermal sources spread through
 	#Use this list if thermal sources are spreading through particular blocks that they shouldn't
 	"Thermal Source Spread Blacklist" = ["minecraft:water"]

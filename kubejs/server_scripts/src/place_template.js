@@ -40,6 +40,17 @@ PlayerEvents.tick(event => {
     })
 })
 
+ItemEvents.rightClicked("cold_sweat:thermometer", event => {
+    const item = event.item;
+    const player = event.player;
+
+    let playerNbt = player.getNbt()
+    
+    console.log(`NBT此处开始：\n${playerNbt}\n NBT此处结束`)
+
+    player.addItemCooldown("cold_sweat:thermometer", 5)
+})
+
 const templatePlaceY = -60
 const doorPlaceY = -60
 
